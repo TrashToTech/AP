@@ -19,10 +19,6 @@ spring:
     username: sa
     password:
     driver-class-name: org.h2.Driver
-    #url: jdbc:mysql://localhost:3306/restByTdd__dev
-    #username: root
-    #password: lldj123414
-    #driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
   jpa:

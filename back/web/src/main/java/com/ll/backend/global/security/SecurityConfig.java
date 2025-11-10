@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,26 +29,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/member/**",
-                                "/api/reissue",
-                                "/",
+                        .requestMatchers("/api/member/join", "/api/auth/login .",
                                 "/h2-console/**",
-                                "/ws/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**")
                         .permitAll()  //인증없이 접속가능
                         .anyRequest()
                         .authenticated() // 인증 필요
                 )
-                .headers(headers -> headers
-                        .defaultsDisabled()
-                        .frameOptions(frame -> frame.sameOrigin())
+                .headers(
+                        headers ->
+                                headers.frameOptions(
+                                        HeadersConfigurer.FrameOptionsConfig::disable
+                                )
                 )
-                .addFilterBefore(new JwtAuthFilter(jwtUtil, redisRepository), UsernamePasswordAuthenticationFilter.class);  // jwt 유효성 검사;
+                .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new JwtAuthFilter(jwtUtil, redisRepository), UsernamePasswordAuthenticationFilter.class) // jwt 유효성 검사;
+                .sessionManagement(sessionManagement ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

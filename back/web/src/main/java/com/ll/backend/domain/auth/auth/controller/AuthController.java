@@ -37,24 +37,7 @@ public class AuthController {
             HttpServletResponse response
     ) {
 
-        String[] tokens = authService.login(dto.username, dto.password);
-
-        String accessToken = tokens[0];
-        String refreshToken = tokens[1];
-
-        redisRepository.save(refreshToken, accessToken, 86400000L);
-
-        String refreshCookie = ResponseCookie
-                .from("refresh", refreshToken)
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .build()
-                .toString();
-
-        response.addHeader("Set-Cookie", refreshCookie);
-        response.addHeader("accessToken", accessToken);
+        authService.login(dto.username, dto.password, response);
 
         return ResponseEntity.ok(Map.of("message", "로그인 성공"));
     }

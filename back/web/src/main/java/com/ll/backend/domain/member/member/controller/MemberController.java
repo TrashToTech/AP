@@ -22,43 +22,9 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
-    private final RedisRepository redisRepository;
 
-    public MemberController(MemberService memberService, RedisRepository redisRepository) {
+    public MemberController(MemberService memberService) {
         this.memberService = memberService;
-        this.redisRepository = redisRepository;
-    }
-
-    record LoginRequest (
-            String username,
-            String password
-    ){}
-
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(
-            @RequestBody LoginRequest dto,
-            HttpServletResponse response
-    ) {
-        String[] tokens = memberService.login(dto.username, dto.password);
-
-        String accessToken = tokens[0];
-        String refreshToken = tokens[1];
-
-        redisRepository.save(refreshToken, accessToken, 86400000L);
-
-        String refreshCookie = ResponseCookie
-                .from("refresh", refreshToken)
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .build()
-                .toString();
-
-        response.addHeader("Set-Cookie", refreshCookie);
-        response.addHeader("accessToken", accessToken);
-
-        return ResponseEntity.ok(Map.of("message", "로그인 성공"));
     }
 
     record RegisterRequest (

@@ -1,6 +1,8 @@
 package com.ll.backend.global.security.jwt;
 
 import com.ll.backend.domain.member.member.entity.Member;
+import com.ll.backend.global.security.dto.CustomUserData;
+import com.ll.backend.global.security.dto.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,11 +27,11 @@ public class JwtUtil {
     @Value("${security.time.refresh}")
     private Long refreshExpiration;
 
-    public String generateToken(Member member, JwtType type) {
+    public String generateToken(CustomUserDetails userDetails, JwtType type) {
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .claims(createClaims(member))
+                .claims(createClaims(userDetails))
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + type.getExpiration(accessExpiration, refreshExpiration)))
                 .signWith(type.getKey(accessKey, refreshKey))
@@ -70,12 +72,12 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(type.getKey(accessKey, refreshKey)).build().parseSignedClaims(token).getPayload().get("memberId", Long.class);
     }
 
-    private Map<String, ?> createClaims(Member member) {
+    private Map<String, ?> createClaims(CustomUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("username", member.getUsername());
-        claims.put("memberId", member.getId());
-        claims.put("nickname", member.getNickname());
-        claims.put("role", member.getRole());
+        claims.put("memberId", userDetails.getMemberId());
+        claims.put("username", userDetails.getUsername());
+        claims.put("nickname", userDetails.getNickname());
+        claims.put("role", userDetails.getRole());
 
         return claims;
     }

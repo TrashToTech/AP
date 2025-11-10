@@ -1,5 +1,6 @@
 package com.ll.backend.global.security.dto;
 
+
 public class CustomUserData {
     long memberId;
     String username;

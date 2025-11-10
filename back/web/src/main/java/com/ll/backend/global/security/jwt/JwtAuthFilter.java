@@ -68,9 +68,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String refreshToken = getRefreshToken(request.getCookies());
                 if (refreshToken != null) {
                     Claims claims = jwtUtil.parseToken(refreshToken, JwtType.REFRESH);
-                    Member member = new Member(claims);
-                    String newAccessToken = jwtUtil.generateToken(member, JwtType.ACCESS);
-                    String newRefreshToken = jwtUtil.generateToken(member, JwtType.REFRESH);
+
+                    CustomUserData userData = new CustomUserData(
+                            claims.get("memberId", Long.class),
+                            claims.get("username", String.class),
+                            claims.get("role", String.class),
+                            claims.get("nickname", String.class)
+                    );
+                    CustomUserDetails userDetails = new CustomUserDetails(userData);
+
+                    String newAccessToken = jwtUtil.generateToken(userDetails, JwtType.ACCESS);
+                    String newRefreshToken = jwtUtil.generateToken(userDetails, JwtType.REFRESH);
 
                     String refreshCookie = ResponseCookie
                             .from("refresh", newRefreshToken)

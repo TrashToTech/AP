@@ -71,6 +71,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                     CustomUserData userData = new CustomUserData(
                             claims.get("memberId", Long.class),
+                            "",
                             claims.get("username", String.class),
                             claims.get("role", String.class),
                             claims.get("nickname", String.class)
@@ -105,6 +106,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private void setAuthentication(Claims claims) {
         CustomUserData userData = new CustomUserData(
                 claims.get("memberId", Long.class),
+                "",
                 claims.get("username", String.class),
                 claims.get("role", String.class),
                 claims.get("nickname", String.class)

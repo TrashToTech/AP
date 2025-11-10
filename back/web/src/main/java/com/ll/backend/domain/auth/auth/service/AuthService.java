@@ -43,16 +43,15 @@ public class AuthService {
 
         redisRepository.save(refreshToken, accessToken, 86400000L);
 
-        String refreshCookie = ResponseCookie
+        ResponseCookie refreshCookie = ResponseCookie
                 .from("refresh", refreshToken)
                 .path("/")
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .build()
-                .toString();
+                .build();
 
-        response.addHeader("Set-Cookie", refreshCookie);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
         response.addHeader("accessToken", accessToken);
     }
 }

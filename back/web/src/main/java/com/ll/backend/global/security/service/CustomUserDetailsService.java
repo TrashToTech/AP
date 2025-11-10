@@ -2,6 +2,8 @@ package com.ll.backend.global.security.service;
 
 import com.ll.backend.domain.member.member.entity.Member;
 import com.ll.backend.domain.member.member.service.MemberService;
+import com.ll.backend.global.exception.GlobalErrorCode;
+import com.ll.backend.global.exception.GlobalException;
 import com.ll.backend.global.security.dto.CustomUserData;
 import com.ll.backend.global.security.dto.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +24,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberService.findByUsername(username);
 
-        CustomUserData customUserData = new CustomUserData(member.getId(), member.getUsername(), member.getRole(), member.getNickname());
+        if(member==null){
+            throw new GlobalException(GlobalErrorCode.NON_EXISTING_USERNAME);
+        }
+
+        CustomUserData customUserData = new CustomUserData(member.getId(), member.getPassword(), member.getUsername(), member.getRole(), member.getNickname());
 
         return new CustomUserDetails(customUserData);
     }

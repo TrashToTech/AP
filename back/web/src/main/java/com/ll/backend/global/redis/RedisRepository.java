@@ -12,6 +12,7 @@ public class RedisRepository {
     public RedisRepository(RedisTemplate<String,String> redisTemplate){
         this.redisTemplate = redisTemplate;
     }
+
     public void save(String key,String value, Long limit){
         redisTemplate.opsForValue().set(key,value,limit, TimeUnit.MINUTES);
     }

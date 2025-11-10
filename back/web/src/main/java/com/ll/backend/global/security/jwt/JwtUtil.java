@@ -72,6 +72,24 @@ public class JwtUtil {
         return Jwts.parser().verifyWith(type.getKey(accessKey, refreshKey)).build().parseSignedClaims(token).getPayload().get("memberId", Long.class);
     }
 
+    public Boolean isExpired(String token, JwtType type) {
+        return Jwts.parser().verifyWith(type.getKey(accessKey, refreshKey)).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+    }
+
+    public CustomUserDetails getUserDetailsFromToken(String token, JwtType type) {
+        Claims claims = parseToken(token, type);
+
+        CustomUserData userData = new CustomUserData(
+                claims.get("memberId", Long.class),
+                "",
+                claims.get("username", String.class),
+                claims.get("role", String.class),
+                claims.get("nickname", String.class)
+        );
+
+        return new CustomUserDetails(userData);
+    }
+
     private Map<String, ?> createClaims(CustomUserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("memberId", userDetails.getMemberId());

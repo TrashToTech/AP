@@ -1,10 +1,9 @@
 package com.ll.backend.domain.auth.auth.controller;
 
 import com.ll.backend.domain.auth.auth.service.AuthService;
-import com.ll.backend.domain.member.member.controller.MemberController;
-import com.ll.backend.global.redis.RedisRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,11 +17,9 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final RedisRepository redisRepository;
 
-    public AuthController(AuthService authService, RedisRepository redisRepository) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.redisRepository = redisRepository;
     }
 
 
@@ -40,5 +37,12 @@ public class AuthController {
         authService.login(dto.username, dto.password, response);
 
         return ResponseEntity.ok(Map.of("message", "로그인 성공"));
+    }
+
+    @PostMapping("/reIssue")
+    public ResponseEntity<?> reIssue(HttpServletRequest request, HttpServletResponse response) {
+        authService.reIssue(request, response);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

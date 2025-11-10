@@ -19,11 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final RedisRepository redisRepository;
 
-    public SecurityConfig(JwtUtil jwtUtil, RedisRepository redisRepository) {
+    public SecurityConfig(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
-        this.redisRepository = redisRepository;
     }
 
     @Bean
@@ -45,7 +43,7 @@ public class SecurityConfig {
                                 )
                 )
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new JwtAuthFilter(jwtUtil, redisRepository), UsernamePasswordAuthenticationFilter.class) // jwt 유효성 검사;
+                .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // jwt 유효성 검사;
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

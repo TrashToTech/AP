@@ -1,9 +1,15 @@
 package com.ll.backend.domain.member.member.entity;
 
+import com.ll.backend.domain.file.file.entity.FileDocument;
 import com.ll.backend.global.entity.BaseTime;
-import io.jsonwebtoken.Claims;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -19,4 +25,7 @@ public class Member extends BaseTime {
     String nickname;
     String email;
     String role;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<FileDocument> fileDocuments = new ArrayList<>();
 }

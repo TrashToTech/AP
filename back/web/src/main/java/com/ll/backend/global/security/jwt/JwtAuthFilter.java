@@ -1,46 +1,18 @@
 package com.ll.backend.global.security.jwt;
 
-import com.ll.backend.domain.member.member.entity.Member;
-import com.ll.backend.global.exception.GlobalErrorCode;
-import com.ll.backend.global.exception.GlobalException;
-import com.ll.backend.global.redis.RedisRepository;
-import com.ll.backend.global.security.dto.CustomUserData;
 import com.ll.backend.global.security.dto.CustomUserDetails;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
-/**
- * sequenceDiagram
- * participant Client
- * participant Server
- * participant Redis
- * <p>
- * Client->>Server: 만료된 Access Token
- * Server->>Redis: 기존 Refresh Token 유효성 확인
- * Redis-->>Server: 유효 여부 응답
- * Server->>Server: 새 토큰 쌍 생성
- * Server->>Redis: 기존 Refresh Token 무효화
- * Server->>Redis: 새 Refresh Token 저장
- * Server-->>Client: 새 Access Token + Refresh Token
- *
- * @author user
- * @since 25. 4. 29.
- */
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final String ACCESS_TOKEN_HEADER = "accessToken";

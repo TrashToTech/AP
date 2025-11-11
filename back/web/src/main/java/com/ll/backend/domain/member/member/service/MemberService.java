@@ -4,16 +4,11 @@ import com.ll.backend.domain.member.member.entity.Member;
 import com.ll.backend.domain.member.member.repository.MemberRepository;
 import com.ll.backend.global.exception.GlobalErrorCode;
 import com.ll.backend.global.exception.GlobalException;
-import com.ll.backend.global.security.dto.CustomUserDetails;
-import com.ll.backend.global.security.jwt.JwtType;
-import com.ll.backend.global.security.jwt.JwtUtil;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class MemberService {
@@ -29,7 +24,14 @@ public class MemberService {
     public Member join(String username, String password, String nickname, String email) {
         String encodingPassword = bCryptPasswordEncoder.encode(password);
 
-        Member member = new Member(username, encodingPassword, nickname, email, "ROLE_MEMBER");
+        Member member = Member.builder()
+                .username(username)
+                .password(encodingPassword)
+                .nickname(nickname)
+                .email(email)
+                .role("ROLE_MEMBER")
+                .fileDocuments(new ArrayList<>())
+                .build();
 
         try {
             return memberRepository.save(member);
@@ -40,6 +42,6 @@ public class MemberService {
 
     public Member findByUsername(String username) {
         return memberRepository.findByUsername(username)
-                .orElseThrow(() -> new GlobalException(GlobalErrorCode.NON_EXISTING_USERNAME));
+                .orElseThrow(() -> new GlobalException(GlobalErrorCode.NON_FOUND_MEMBER));
     }
 }

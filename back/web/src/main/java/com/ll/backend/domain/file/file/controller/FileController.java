@@ -1,8 +1,10 @@
 package com.ll.backend.domain.file.file.controller;
 
 import com.ll.backend.domain.file.file.service.FileService;
+import com.ll.backend.global.security.dto.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,13 +22,9 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file")MultipartFile file) {
+    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        if (!"application/pdf".equals(file.getContentType())) {
-            return ResponseEntity.badRequest().body("PDF 파일만 업로드할 수 있습니다.");
-        }
-
-        fileService.save(file);
+        fileService.save(file,userDetails.getMemberId());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

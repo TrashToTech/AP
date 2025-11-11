@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,5 +26,5 @@ public class Member extends BaseTime {
     String role;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    private List<FileDocument> fileDocuments = new ArrayList<>();
+    private List<FileDocument> fileDocuments;
 }

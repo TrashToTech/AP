@@ -18,10 +18,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FileDocument extends BaseTime {
 
-    private String name;
-    private String path;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+    private String filePath;
+    private String script;
+    private String audioPath;
+
 }

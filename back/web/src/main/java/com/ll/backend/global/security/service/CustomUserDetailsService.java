@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Member member = memberService.findByUsername(username);
 
         if(member==null){
-            throw new GlobalException(GlobalErrorCode.NON_EXISTING_USERNAME);
+            throw new GlobalException(GlobalErrorCode.NON_FOUND_MEMBER);
         }
 
         CustomUserData customUserData = new CustomUserData(member.getId(), member.getPassword(), member.getUsername(), member.getRole(), member.getNickname());

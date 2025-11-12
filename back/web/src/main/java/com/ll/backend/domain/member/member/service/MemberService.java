@@ -2,6 +2,7 @@ package com.ll.backend.domain.member.member.service;
 
 import com.ll.backend.domain.member.member.entity.Member;
 import com.ll.backend.domain.member.member.repository.MemberRepository;
+import com.ll.backend.domain.member.member.role.MemberRole;
 import com.ll.backend.global.exception.GlobalErrorCode;
 import com.ll.backend.global.exception.GlobalException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,7 +30,7 @@ public class MemberService {
                 .password(encodingPassword)
                 .nickname(nickname)
                 .email(email)
-                .role("ROLE_MEMBER")
+                .role(MemberRole.USER.getValue())
                 .fileDocuments(new ArrayList<>())
                 .build();
 

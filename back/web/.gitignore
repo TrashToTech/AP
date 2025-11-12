@@ -37,3 +37,4 @@ out/
 .vscode/
 db_dev.mv.db
 application-secret.yml
+.env

@@ -31,12 +31,19 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	compileOnly("org.projectlombok:lombok")
 
-	// jwt
+	// JWT
 	implementation ("io.jsonwebtoken:jjwt-api:0.12.6")
 	runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.12.6")
 	runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
+    // Redis
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
+
+    // OAUTH2
+    implementation ("org.springframework.boot:spring-boot-starter-oauth2-client")
 }
 
 tasks.withType<Test> {

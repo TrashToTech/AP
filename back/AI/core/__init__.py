@@ -1,1 +1,1 @@
-# Core Module
+from .service import PipeLogic

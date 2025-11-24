@@ -38,6 +38,7 @@ dependencies {
 
     // Redis
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+    testImplementation("com.github.codemonstur:embedded-redis:1.4.3")
 
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")

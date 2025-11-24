@@ -4,7 +4,7 @@ import com.ll.backend.domain.member.member.entity.Member;
 import com.ll.backend.domain.member.member.repository.MemberRepository;
 import com.ll.backend.global.exception.GlobalErrorCode;
 import com.ll.backend.global.exception.GlobalException;
-import com.ll.backend.global.redis.RedisRepository;
+import com.ll.backend.global.redis.repository.RedisRepository;
 import com.ll.backend.global.security.dto.CustomOAuth2UserData;
 import com.ll.backend.global.security.dto.CustomUserDetails;
 import com.ll.backend.global.security.jwt.JwtType;

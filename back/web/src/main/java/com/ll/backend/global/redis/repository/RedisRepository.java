@@ -1,4 +1,4 @@
-package com.ll.backend.global.redis;
+package com.ll.backend.global.redis.repository;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

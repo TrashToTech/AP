@@ -3,7 +3,7 @@ package com.ll.backend.domain.auth.auth.service;
 import com.ll.backend.domain.auth.auth.dto.TokenInfo;
 import com.ll.backend.global.exception.GlobalErrorCode;
 import com.ll.backend.global.exception.GlobalException;
-import com.ll.backend.global.redis.RedisRepository;
+import com.ll.backend.global.redis.repository.RedisRepository;
 import com.ll.backend.global.security.dto.CustomUserDetails;
 import com.ll.backend.global.security.jwt.JwtType;
 import com.ll.backend.global.security.jwt.JwtUtil;

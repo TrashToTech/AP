@@ -37,7 +37,9 @@ public class FileService {
 
         validateFile(file);
 
-        String savedPath = moveToFinalStorage(file);
+        String originalName = file.getOriginalFilename();
+        String storedName = UUID.randomUUID() + ".pdf";
+        String savedPath = saveToStorage(file, storedName);
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new GlobalException(GlobalErrorCode.NON_FOUND_MEMBER));
@@ -45,6 +47,8 @@ public class FileService {
         fileDocumentRepository.save(
                 FileDocument.builder()
                         .member(member)
+                        .originalName(originalName)
+                        .storedName(storedName)
                         .filePath(savedPath)
                         .script("")
                         .audioPath("")
@@ -66,17 +70,23 @@ public class FileService {
         }
     }
 
-    private String moveToFinalStorage(MultipartFile file) {
+    private String saveToStorage(MultipartFile file, String storedName) {
         try {
-            String fileName = UUID.randomUUID() + ".pdf";
-            Path targetPath = Paths.get(uploadDir).resolve(fileName);
+            Path baseDir = Paths.get("").toAbsolutePath().getParent().getParent();
+            Path finalDir = baseDir.resolve(uploadDir);
+            Files.createDirectories(finalDir);
 
-            Files.createDirectories(targetPath.getParent());
+            Path targetPath = finalDir.resolve(storedName);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            return targetPath.toString();  // DB에는 이 경로만 저장
+            return targetPath.toString();
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패", e);
         }
+    }
+
+    public FileDocument findByStoredName(String pdfName) {
+        return fileDocumentRepository.findByStoredName(pdfName)
+                .orElseThrow();
     }
 }

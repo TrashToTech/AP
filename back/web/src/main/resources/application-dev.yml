@@ -1,0 +1,6 @@
+custom:
+  jwt:
+    access: qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM
+    refresh: qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM
+file:
+  upload-dir: test_data

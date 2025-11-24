@@ -4,7 +4,7 @@ spring:
   application:
     name: backend
   profiles:
-    active: secret
+    active: dev
   mvc:
     favicon:
       enabled: false
@@ -58,5 +58,3 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
     org.springframework.transaction.interceptor: TRACE
-file:
-  upload-dir: D:\ideaProjects\AP\back\web\files\pdf

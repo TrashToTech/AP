@@ -1,5 +1,6 @@
 package com.ll.backend.domain.auth.auth.controller;
 
+import com.ll.backend.domain.auth.auth.dto.TokenInfo;
 import com.ll.backend.domain.auth.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,9 +35,9 @@ public class AuthController {
             HttpServletResponse response
     ) {
 
-        authService.login(dto.username, dto.password, response);
+        TokenInfo token = authService.login(dto.username, dto.password, response);
 
-        return ResponseEntity.ok(Map.of("message", "로그인 성공"));
+        return ResponseEntity.ok(Map.of("accessToken", token.getAccessToken()));
     }
 
     @PostMapping("/reIssue")

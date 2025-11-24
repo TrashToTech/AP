@@ -1,9 +1,9 @@
 package com.ll.backend.domain.auth.auth.service;
 
+import com.ll.backend.domain.auth.auth.dto.TokenInfo;
 import com.ll.backend.global.exception.GlobalErrorCode;
 import com.ll.backend.global.exception.GlobalException;
 import com.ll.backend.global.redis.RedisRepository;
-import com.ll.backend.global.security.dto.CustomUserData;
 import com.ll.backend.global.security.dto.CustomUserDetails;
 import com.ll.backend.global.security.jwt.JwtType;
 import com.ll.backend.global.security.jwt.JwtUtil;
@@ -39,14 +39,16 @@ public class AuthService {
     /**
      * 로그인 처리
      */
-    public void login(String username, String password, HttpServletResponse response) {
+    public TokenInfo login(String username, String password, HttpServletResponse response) {
         Authentication authentication = authenticate(username, password);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         TokenInfo tokenInfo = generateTokenInfo(userDetails);
-        redisRepository.save(REDIS_REFRESH_PREFIX + userDetails.getMemberId(), tokenInfo.refreshToken, REFRESH_EXPIRATION);
+        redisRepository.save(REDIS_REFRESH_PREFIX + userDetails.getMemberId(), tokenInfo.getRefreshToken(), REFRESH_EXPIRATION);
 
         addTokensToResponse(response, tokenInfo);
+
+        return tokenInfo;
     }
 
     /**
@@ -86,8 +88,8 @@ public class AuthService {
     }
 
     private void addTokensToResponse(HttpServletResponse response, TokenInfo tokenInfo) {
-        response.addHeader("Set-Cookie", createRefreshCookie(tokenInfo.refreshToken).toString());
-        response.addHeader("accessToken", tokenInfo.accessToken);
+        response.addHeader("Set-Cookie", createRefreshCookie(tokenInfo.getRefreshToken()).toString());
+        response.addHeader("accessToken", tokenInfo.getAccessToken());
     }
 
     private String extractRefreshToken(Cookie[] cookies) {
@@ -121,9 +123,4 @@ public class AuthService {
                 .sameSite("None")
                 .build();
     }
-
-    /**
-     * Access + Refresh 토큰을 묶은 DTO
-     */
-    private record TokenInfo(String accessToken, String refreshToken) {}
 }

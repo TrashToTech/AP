@@ -1,6 +1,46 @@
-import Image from 'next/image';
+"use client";
 
-export default function LoginSplitPage() {
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+type LoginForm = {
+    username: string;
+    password: string;
+};
+
+export default function LoginPage() {
+
+    const router = useRouter();
+    const [result, setResult] = useState("");
+    const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
+
+    const onSubmit = async (data: LoginForm) => {
+
+        try {
+            const res = await fetch("http://localhost:8080/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            const body = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem("accessToken", body.accessToken);
+                router.push("/");
+            } else {
+                setResult(body.message || "Login failed");
+            }
+        } catch (e) {
+            setResult("ERROR: " + e);
+        }
+        return;
+    };
+
     return (
         <main className="min-h-screen flex bg-gray-50">
             {/* 왼쪽: 로그인 섹션 */}
@@ -11,19 +51,27 @@ export default function LoginSplitPage() {
                         Today is a new day. It's your day. You shape it.<br />
                         Sign in to start managing your projects.
                     </p>
-                    <form className="w-full">
-                        <label className="block text-sm mb-1 font-medium">Email</label>
+                    <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+                        <label className="block text-sm mb-1 font-medium">ID</label>
                         <input
-                            type="email"
-                            placeholder="Example@email.com"
+                            type="text"
+                            placeholder="Example"
                             className="w-full border rounded-lg bg-blue-50 px-4 py-2 mb-4 text-gray-700 focus:outline-none focus:ring"
+                            {...register("username", { required: "ID를 입력하세요." })}
                         />
+                        {errors.username && (
+                            <p className="text-red-600 text-sm mb-3">{errors.username.message}</p>
+                        )}
                         <label className="block text-sm mb-1 font-medium">Password</label>
                         <input
                             type="password"
                             placeholder="at least 8 characters"
                             className="w-full border rounded-lg bg-blue-50 px-4 py-2 mb-4 text-gray-700 focus:outline-none focus:ring"
+                            {...register("password", { required: "비밀번호를 입력하세요." })}
                         />
+                        {errors.password && (
+                            <p className="text-red-600 text-sm mb-3">{errors.password.message}</p>
+                        )}
                         <div className="flex justify-end mb-4">
                             <a href="#" className="text-xs text-blue-600 hover:underline">Forgot Password?</a>
                         </div>
@@ -33,7 +81,17 @@ export default function LoginSplitPage() {
                         >
                             Sign in
                         </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push("/member/join")}
+                            className="w-full mt-3 border border-gray-800 hover:bg-gray-100 text-gray-800 py-3 rounded-lg font-semibold text-base"
+                        >
+                            Sign up
+                        </button>
                     </form>
+                    {result && (
+                        <p className="mt-4 text-center text-sm text-red-600">{result}</p>
+                    )}
                     <div className="flex items-center my-10 w-full">
                         <hr className="flex-grow border-gray-200" />
                         <span className="mx-2 text-gray-400 text-sm">Or</span>
@@ -50,11 +108,10 @@ export default function LoginSplitPage() {
                     </p>
                 </div>
             </section>
-
             {/* 오른쪽: 이미지 섹션 */}
             <section className="flex-1 relative hidden md:block">
                 <Image
-                    src="/universal.jpg" // public 폴더에 이미지 저장
+                    src="/universal.jpg"
                     alt="Login Visual"
                     layout="fill"
                     objectFit="cover"

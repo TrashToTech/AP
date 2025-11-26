@@ -6,5 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ScriptDto {
+    private long pdfId;
     private String pdfName;
 }

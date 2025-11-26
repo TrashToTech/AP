@@ -1,15 +1,15 @@
 package com.ll.backend.domain.file.file.controller;
 
+import com.ll.backend.domain.file.file.dto.FileDto;
 import com.ll.backend.domain.file.file.service.FileService;
 import com.ll.backend.global.security.dto.CustomUserDetails;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/file")
@@ -22,10 +22,21 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<FileDto> upload(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        fileService.save(file,userDetails.getMemberId());
+        return ResponseEntity.ok(
+                new FileDto(fileService.save(file, userDetails.getMemberId()))
+        );
+    }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("list")
+    public ResponseEntity<List<FileDto>> list(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        return ResponseEntity.ok(
+                fileService.findByMemberId(userDetails.getMemberId())
+                        .stream()
+                        .map(FileDto::new)
+                        .collect(Collectors.toList())
+        );
     }
 }

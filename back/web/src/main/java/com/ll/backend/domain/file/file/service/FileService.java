@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,7 +34,7 @@ public class FileService {
     }
 
     @Transactional
-    public void save(MultipartFile file, Long memberId) {
+    public FileDocument save(MultipartFile file, Long memberId) {
 
         validateFile(file);
 
@@ -44,7 +45,7 @@ public class FileService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new GlobalException(GlobalErrorCode.NON_FOUND_MEMBER));
 
-        fileDocumentRepository.save(
+        return fileDocumentRepository.save(
                 FileDocument.builder()
                         .member(member)
                         .originalName(originalName)
@@ -88,5 +89,9 @@ public class FileService {
     public FileDocument findByStoredName(String pdfName) {
         return fileDocumentRepository.findByStoredName(pdfName)
                 .orElseThrow();
+    }
+
+    public List<FileDocument> findByMemberId(Long memberId) {
+        return fileDocumentRepository.findByMemberId(memberId);
     }
 }

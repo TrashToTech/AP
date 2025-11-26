@@ -48,6 +48,10 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 security:
   time:
     access: 3600000

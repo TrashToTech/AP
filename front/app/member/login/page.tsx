@@ -31,7 +31,7 @@ export default function LoginPage() {
 
             if (res.ok) {
                 localStorage.setItem("accessToken", body.accessToken);
-                router.push("/");
+                router.push("/ai/script");
             } else {
                 setResult(body.message || "Login failed");
             }

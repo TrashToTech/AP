@@ -30,22 +30,27 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	// Lombok
 	compileOnly("org.projectlombok:lombok")
+	annotationProcessor("org.projectlombok:lombok")
+	testCompileOnly("org.projectlombok:lombok")
+	testAnnotationProcessor("org.projectlombok:lombok")
 
 	// JWT
 	implementation ("io.jsonwebtoken:jjwt-api:0.12.6")
 	runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.12.6")
 	runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
-    // Redis
+	// Redis
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("com.github.codemonstur:embedded-redis:1.4.3")
 
-    // Swagger
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
+	// Swagger
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
 
-    // OAUTH2
-    implementation ("org.springframework.boot:spring-boot-starter-oauth2-client")
+	// OAUTH2
+	implementation ("org.springframework.boot:spring-boot-starter-oauth2-client")
 }
 
 tasks.withType<Test> {

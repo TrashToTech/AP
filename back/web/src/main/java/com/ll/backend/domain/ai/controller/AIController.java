@@ -2,7 +2,6 @@ package com.ll.backend.domain.ai.controller;
 
 import com.ll.backend.domain.ai.dto.ScriptDto;
 import com.ll.backend.domain.ai.dto.ScriptResponseDto;
-import com.ll.backend.domain.file.file.service.FileService;
 import com.ll.backend.global.webClient.service.ApiService;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,11 +14,9 @@ import reactor.core.publisher.Mono;
 public class AIController {
 
     private final ApiService apiService;
-    private final FileService fileService;
 
-    public AIController(ApiService apiService, FileService fileService) {
+    public AIController(ApiService apiService) {
         this.apiService = apiService;
-        this.fileService = fileService;
     }
 
     @PostMapping("/script")

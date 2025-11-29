@@ -2,27 +2,27 @@
 
 import { useEffect, useState } from "react";
 import FileUpload from "@/app/components/FileUpload";
+import { authFetch } from "@/lib/authFetch";
 
 export default function AppLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [history, setHistory] = useState([]);
     const [token, setToken] = useState("");
 
+    // 토큰 로드
     useEffect(() => {
         const tk = localStorage.getItem("accessToken") ?? "";
         setToken(tk);
     }, []);
 
+    // 히스토리 로딩
     useEffect(() => {
         if (!token) return;
 
         const fetchHistory = async () => {
             try {
-                const res = await fetch("http://localhost:8080/api/file/list", {
+                const res = await authFetch("http://localhost:8080/api/file/list", {
                     method: "GET",
-                    headers: {
-                        "accessToken": token,
-                    },
                 });
 
                 if (!res.ok) throw new Error("불러오기 실패");

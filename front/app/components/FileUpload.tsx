@@ -3,6 +3,7 @@
 import { Upload, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { authFetch } from "@/lib/authFetch";
 
 type FileForm = {
     file: FileList;
@@ -29,10 +30,9 @@ export default function FileUpload({ onHistoryAdd, token }) {
         formData.append("file", file);
 
         try {
-            const uploadRes = await fetch("http://localhost:8080/api/file/upload", {
+            const uploadRes = await authFetch("http://localhost:8080/api/file/upload", {
                 method: "POST",
                 body: formData,
-                headers: { accessToken: token },
             });
 
             if (!uploadRes.ok) {
@@ -42,11 +42,11 @@ export default function FileUpload({ onHistoryAdd, token }) {
 
             const uploaded = await uploadRes.json();
 
-            // 히스토리 저장
+            // 히스토리 갱신
             onHistoryAdd(uploaded.originalName ?? file.name);
 
             //---------------------------------------
-            // 2) Spring Boot -> FastAPI 스크립트 생성 요청
+            // 2) Spring Boot → FastAPI 스크립트 생성 요청
             //---------------------------------------
             setStatus("generating");
 
@@ -55,11 +55,10 @@ export default function FileUpload({ onHistoryAdd, token }) {
                 pdfName: uploaded.storedName,
             };
 
-            const scriptRes = await fetch("http://localhost:8080/api/ai/script", {
+            const scriptRes = await authFetch("http://localhost:8080/api/ai/script", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "accessToken": token,
+                    "Content-Type": "application/json",  // authFetch가 헤더 병합함
                 },
                 body: JSON.stringify(scriptBody),
             });
@@ -75,6 +74,7 @@ export default function FileUpload({ onHistoryAdd, token }) {
             setStatus("done");
 
         } catch (err) {
+            console.error("upload error", err);
             setStatus("error");
         }
     };

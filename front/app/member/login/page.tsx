@@ -16,7 +16,7 @@ export default function LoginPage() {
     const [result, setResult] = useState("");
     const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
 
-    const onSubmit = async (data: LoginForm) => {
+    const onSubmit = async (form: LoginForm) => {
 
         try {
             const res = await fetch("http://localhost:8080/api/auth/login", {
@@ -24,16 +24,17 @@ export default function LoginPage() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify(form),
+                credentials: "include",
             });
 
-            const body = await res.json();
+            const data = await res.json();
 
             if (res.ok) {
-                localStorage.setItem("accessToken", body.accessToken);
-                router.push("/ai/script");
+                localStorage.setItem("accessToken", data.accessToken);
+                router.replace("/ai/script");
             } else {
-                setResult(body.message || "Login failed");
+                setResult(data.message || "Login failed");
             }
         } catch (e) {
             setResult("ERROR: " + e);

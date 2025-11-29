@@ -1,5 +1,4 @@
 import Link from "next/link";
-import SelectBox from "./components/SelectBox";
 import DropdownMenu from "./components/DropdownMenu";
 
 // pages/index.tsx

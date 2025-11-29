@@ -14,8 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
-
-    private static final String ACCESS_TOKEN_HEADER = "accessToken";
     private final JwtUtil jwtUtil;
 
     public JwtAuthFilter(JwtUtil jwtUtil) {
@@ -31,16 +29,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String accessToken = request.getHeader(ACCESS_TOKEN_HEADER);
+        String header = request.getHeader("Authorization");
 
-        if (!validateAccessToken(accessToken, response)) {
-            return;
+        if (header != null && header.startsWith("Bearer ")) {
+            String accessToken = header.substring(7);
+
+            if (!validateAccessToken(accessToken, response)) {
+                return;
+            }
+
+            CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(accessToken, JwtType.ACCESS);
+            setAuthentication(userDetails);
+
+            filterChain.doFilter(request, response);
         }
-
-        CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(accessToken, JwtType.ACCESS);
-        setAuthentication(userDetails);
-
-        filterChain.doFilter(request, response);
     }
 
     /**

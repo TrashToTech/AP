@@ -65,9 +65,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                 .build();
 
         response.addHeader("Set-Cookie", refreshCookie.toString());
-        response.setHeader("accessToken", accessToken);
+        response.addHeader("Authorization", "Bearer " + accessToken);
 
         // Redirect
-        response.sendRedirect("http://localhost:3000/oauth2/success?accessToken=" + accessToken);
+        response.sendRedirect("http://localhost:3000/ai/script");
     }
 }

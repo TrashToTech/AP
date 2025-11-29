@@ -89,7 +89,6 @@ public class AuthService {
 
     private void addTokensToResponse(HttpServletResponse response, TokenInfo tokenInfo) {
         response.addHeader("Set-Cookie", createRefreshCookie(tokenInfo.getRefreshToken()).toString());
-        response.addHeader("accessToken", tokenInfo.getAccessToken());
     }
 
     private String extractRefreshToken(Cookie[] cookies) {

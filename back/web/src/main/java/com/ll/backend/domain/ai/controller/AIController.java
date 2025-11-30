@@ -6,10 +6,7 @@ import com.ll.backend.global.webClient.service.ApiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -29,7 +26,7 @@ public class AIController {
             description = "PDF ID와 파일명을 받아 PDF에서 대본을 생성합니다."
     )
     @PostMapping("/script")
-    public Mono<ScriptResponseDto> script(@ModelAttribute ScriptDto scriptDto) {
+    public Mono<ScriptResponseDto> script(@RequestBody ScriptDto scriptDto) {
         return apiService.postGenerateScript(Math.toIntExact(scriptDto.getPdfId()), scriptDto.getPdfName());
     }
 }

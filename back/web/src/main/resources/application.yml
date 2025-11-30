@@ -10,6 +10,8 @@ spring:
   profiles:
     active: dev
   mvc:
+    async:
+      request-timeout: 600000 #(10분)
     favicon:
       enabled: false
   web:

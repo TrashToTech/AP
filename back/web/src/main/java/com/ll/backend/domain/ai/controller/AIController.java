@@ -27,6 +27,6 @@ public class AIController {
     )
     @PostMapping("/script")
     public Mono<ScriptResponseDto> script(@RequestBody ScriptDto scriptDto) {
-        return apiService.postGenerateScript(Math.toIntExact(scriptDto.getPdfId()), scriptDto.getPdfName());
+        return apiService.postGenerateScript(scriptDto.getPdfId(), scriptDto.getPdfName());
     }
 }

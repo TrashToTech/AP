@@ -1,23 +1,24 @@
 package com.ll.backend.global.webClient.service;
 
 import com.ll.backend.domain.ai.dto.ScriptResponseDto;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-@Configuration
+@Service
 public class ApiService {
 
-    private final WebClient.Builder webClientBuilder;
+    private final WebClient webClient;
 
     public ApiService(WebClient.Builder webClientBuilder) {
-        this.webClientBuilder = webClientBuilder;
+        this.webClient = webClientBuilder
+                .baseUrl("http://127.0.0.1:8000")
+                .build();
     }
 
-    public Mono<ScriptResponseDto> postGenerateScript(int pdfId, String pdfName) {
+    public Mono<ScriptResponseDto> postGenerateScript(long pdfId, String pdfName) {
 
-        return webClientBuilder.baseUrl("http://127.0.0.1:8000").build()
-                .post()
+        return webClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/generate-script")
                         .queryParam("pdfId", pdfId)

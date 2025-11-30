@@ -2,6 +2,8 @@ package com.ll.backend.domain.member.member.controller;
 
 import com.ll.backend.domain.member.member.entity.Member;
 import com.ll.backend.domain.member.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/member")
+@Tag(name = "Member API", description = "회원 가입 API")
 public class MemberController {
 
     private final MemberService memberService;
@@ -40,6 +43,10 @@ public class MemberController {
             String email
     ){}
 
+    @Operation(
+            summary = "회원가입",
+            description = "username, password, nickname, email 정보를 입력하여 회원가입을 진행합니다."
+    )
     @PostMapping("/join")
     public ResponseEntity<Member> join(
             @Valid @RequestBody RegisterRequest dto

@@ -62,8 +62,19 @@ public class FileService {
             throw new IllegalArgumentException("파일이 비어있습니다.");
         }
 
-        if (!file.getContentType().equals("application/pdf")) {
+        // PDF 파일 검증 (확장자 기반)
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".pdf")) {
             throw new IllegalArgumentException("PDF 파일만 업로드 가능합니다.");
+        }
+
+        // Content-Type 검증 (한컴 PDF 등 다양한 PDF 타입 허용)
+        String contentType = file.getContentType();
+        if (contentType != null &&
+            !contentType.equals("application/pdf") &&
+            !contentType.equals("application/haansoftpdf") &&
+            !contentType.equals("application/x-pdf")) {
+            System.out.println("경고: 예상치 못한 Content-Type: " + contentType + " (파일명: " + originalFilename + ")");
         }
 
         if (file.getSize() > 10 * 1024 * 1024) { // 10MB 제한 나중에 변경 하면 됨

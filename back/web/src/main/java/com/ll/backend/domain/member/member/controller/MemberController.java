@@ -25,7 +25,7 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    record RegisterRequest (
+    record JoinRequest (
             @NotBlank
             @Length(min = 4)
             String username,
@@ -49,9 +49,9 @@ public class MemberController {
     )
     @PostMapping("/join")
     public ResponseEntity<Member> join(
-            @Valid @RequestBody RegisterRequest dto
+            @Valid @RequestBody JoinRequest req
     ) {
-        Member member = memberService.join(dto.username, dto.password, dto.nickname, dto.email);
+        Member member = memberService.join(req.username, req.password, req.nickname, req.email);
         return ResponseEntity.ok(member);
     }
 }

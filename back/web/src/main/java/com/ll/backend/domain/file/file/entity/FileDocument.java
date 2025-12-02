@@ -1,15 +1,15 @@
 package com.ll.backend.domain.file.file.entity;
 
+import com.ll.backend.domain.ai.entity.Script;
 import com.ll.backend.domain.member.member.entity.Member;
 import com.ll.backend.global.entity.BaseTime;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,7 +24,6 @@ public class FileDocument extends BaseTime {
     private String originalName;
     private String storedName;
     private String filePath;
-    private String script;
-    private String audioPath;
-
+    @OneToMany(mappedBy = "fileDocument", cascade = CascadeType.ALL)
+    private List<Script> scripts;
 }

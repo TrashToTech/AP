@@ -1,6 +1,7 @@
 package com.ll.backend.global.webClient.service;
 
-import com.ll.backend.domain.ai.dto.ScriptResponseDto;
+import com.ll.backend.domain.ai.dto.ScriptDto;
+import com.ll.backend.domain.ai.dto.SpeechDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -16,7 +17,7 @@ public class ApiService {
                 .build();
     }
 
-    public Mono<ScriptResponseDto> postGenerateScript(long pdfId, String pdfName) {
+    public Mono<ScriptDto> postGenerateScript(long pdfId, String pdfName) {
 
         return webClient.post()
                 .uri(uriBuilder -> uriBuilder
@@ -25,6 +26,15 @@ public class ApiService {
                         .queryParam("pdfName", pdfName)
                         .build())
                 .retrieve()
-                .bodyToMono(ScriptResponseDto.class);
+                .bodyToMono(ScriptDto.class);
+    }
+
+    public Mono<SpeechDto> postSpeech(ScriptDto dto) {
+
+        return webClient.post()
+                .uri("/speech")
+                .bodyValue(dto)
+                .retrieve()
+                .bodyToMono(SpeechDto.class);
     }
 }

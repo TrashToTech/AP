@@ -51,8 +51,6 @@ public class FileService {
                         .originalName(originalName)
                         .storedName(storedName)
                         .filePath(savedPath)
-                        .script("")
-                        .audioPath("")
                         .build()
         );
     }

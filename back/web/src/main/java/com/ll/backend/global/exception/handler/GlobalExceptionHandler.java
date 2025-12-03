@@ -1,20 +1,17 @@
 package com.ll.backend.global.exception.handler;
 
+import com.ll.backend.global.dto.ApiResponse;
 import com.ll.backend.global.exception.GlobalException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Map;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(GlobalException.class)
-    public ResponseEntity<Map<String, Object>> handle(GlobalException ex) {
+    public ResponseEntity<ApiResponse<?>> handle(GlobalException e) {
         return ResponseEntity
-                .status(ex.getStatus())
-                .body(Map.of("status", ex.getStatus().value(),
-                        "code", ex.getCode(),
-                        "message", ex.getMessage()));
+                .status(e.getStatus().value())
+                .body(ApiResponse.error(e.getCode(), e.getMessage()));
     }
 }

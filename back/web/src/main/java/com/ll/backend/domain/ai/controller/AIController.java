@@ -2,6 +2,7 @@ package com.ll.backend.domain.ai.controller;
 
 import com.ll.backend.domain.ai.dto.ScriptDto;
 import com.ll.backend.domain.ai.dto.SpeechDto;
+import com.ll.backend.global.dto.ApiResponse;
 import com.ll.backend.global.webClient.service.ApiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,9 +34,11 @@ public class AIController {
             description = "PDF ID와 파일명을 받아 PDF에서 대본을 생성합니다."
     )
     @PostMapping("/script")
-    public Mono<ScriptDto> script(@RequestBody ScriptRequest req) {
+    public ApiResponse<Mono<ScriptDto>> script(@RequestBody ScriptRequest req) {
         // fastAPI 수정되면 저장 service 추가
-        return apiService.postGenerateScript(req.pdfId, req.pdfName);
+        return ApiResponse.success(
+                apiService.postGenerateScript(req.pdfId, req.pdfName)
+        );
     }
 
     @Operation(
@@ -50,8 +53,10 @@ public class AIController {
                 """
     )
     @PostMapping("/speech")
-    public Mono<SpeechDto> speech(@RequestBody ScriptDto scriptDto) {
+    public ApiResponse<Mono<SpeechDto>> speech(@RequestBody ScriptDto scriptDto) {
         // fastAPI 수정되면 저장 service 추가
-        return apiService.postSpeech(scriptDto);
+        return ApiResponse.success(
+                apiService.postSpeech(scriptDto)
+        );
     }
 }

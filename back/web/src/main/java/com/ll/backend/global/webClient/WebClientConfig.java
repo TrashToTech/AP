@@ -18,11 +18,11 @@ public class WebClientConfig {
     public WebClient.Builder webClientBuilder() {
 
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 600_000) // 10분
-                .responseTimeout(Duration.ofMinutes(10)) // 응답 타임아웃
-                .doOnConnected(conn ->
-                        conn.addHandlerLast(new ReadTimeoutHandler(600))
-                                .addHandlerLast(new WriteTimeoutHandler(600))
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 600000) // 연결 대기 10분
+                .responseTimeout(Duration.ofMinutes(10))              // ★ 응답 대기 10분
+                .doOnConnected(conn -> conn
+                        .addHandlerLast(new ReadTimeoutHandler(600000))  // ★ read timeout
+                        .addHandlerLast(new WriteTimeoutHandler(600000)) // ★ write timeout
                 );
 
         return WebClient.builder()

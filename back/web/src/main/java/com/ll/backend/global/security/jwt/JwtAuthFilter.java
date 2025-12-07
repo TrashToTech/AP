@@ -30,13 +30,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String header = request.getHeader("Authorization");
+        System.out.println("header = " + header);
 
         if (header != null && header.startsWith("Bearer ")) {
             String accessToken = header.substring(7);
 
             if (!validateAccessToken(accessToken, response)) {
+                System.out.println("실패");
                 return;
             }
+            System.out.println("여기");
 
             CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(accessToken, JwtType.ACCESS);
             setAuthentication(userDetails);
@@ -58,8 +61,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             jwtUtil.parseToken(token, JwtType.ACCESS);
             return true;
         } catch (ExpiredJwtException e) {
+            e.printStackTrace();
             writeErrorResponse(response, "ACCESS_TOKEN_EXPIRED");
         } catch (Exception e) {
+            e.printStackTrace();
             writeErrorResponse(response, "INVALID_ACCESS_TOKEN");
         }
 
@@ -98,7 +103,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      */
     private void writeErrorResponse(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write(message);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\":\"" + message + "\"}");
     }
 }
 

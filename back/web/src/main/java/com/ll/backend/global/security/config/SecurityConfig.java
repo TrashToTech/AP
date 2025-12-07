@@ -38,7 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/member/join", "/api/auth/login", "/api/ai/**",
+                        .requestMatchers("/api/member/join", "/api/auth/**",
                                 "/h2-console/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**")

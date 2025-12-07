@@ -18,7 +18,6 @@ public class ApiService {
     }
 
     public Mono<ScriptDto> postGenerateScript(long pdfId, String pdfName) {
-
         return webClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path("/generate-script")

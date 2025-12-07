@@ -84,6 +84,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/speech": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * PDF 페이지 대본을 기반으로 음성 합성 요청
+         * @description 업로드된 PDF에서 생성한 페이지별 대본(script)을 FastAPI로 전달하여
+         *     각 페이지의 음성을 합성하고, 생성된 음성 파일명을 반환합니다.
+         *
+         *     - 요청 Body에는 pdfId와 페이지별 대본 리스트(pdfInfo)가 포함됩니다.
+         *     - FastAPI는 모든 페이지를 한 번에 처리하며, 각 페이지마다 음성 파일이 생성됩니다.
+         *     - 응답으로는 pageNum, script, audioFileName이 포함된 리스트가 반환됩니다.
+         */
+        post: operations["speech"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ai/script": {
         parameters: {
             query?: never;
@@ -128,11 +153,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        RegisterRequest: {
+        JoinRequest: {
             username?: string;
             password?: string;
             nickname?: string;
             email?: string;
+        };
+        ApiResponseMember: {
+            success?: boolean;
+            code?: string;
+            message?: string;
+            data?: components["schemas"]["Member"];
         };
         FileDocument: {
             /** Format: int64 */
@@ -145,8 +176,7 @@ export interface components {
             originalName?: string;
             storedName?: string;
             filePath?: string;
-            script?: string;
-            audioPath?: string;
+            scripts?: components["schemas"]["Script"][];
         };
         Member: {
             /** Format: int64 */
@@ -162,32 +192,80 @@ export interface components {
             role?: string;
             fileDocuments?: components["schemas"]["FileDocument"][];
         };
+        Script: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: date-time */
+            createDate?: string;
+            /** Format: date-time */
+            modifyDate?: string;
+            /** Format: int32 */
+            pageNum?: number;
+            script?: string;
+            audioPath?: string;
+            fileDocument?: components["schemas"]["FileDocument"];
+        };
+        ApiResponseFileDto: {
+            success?: boolean;
+            code?: string;
+            message?: string;
+            data?: components["schemas"]["FileDto"];
+        };
         FileDto: {
             /** Format: int64 */
             pdfId?: number;
             originalName?: string;
             storedName?: string;
-            script?: string;
-            audioPath?: string;
+        };
+        ApiResponseVoid: {
+            success?: boolean;
+            code?: string;
+            message?: string;
+            data?: Record<string, never>;
         };
         LoginRequest: {
             username?: string;
             password?: string;
         };
-        ScriptDto: {
-            /** Format: int64 */
-            pdfId?: number;
-            pdfName?: string;
+        ApiResponseObject: {
+            success?: boolean;
+            code?: string;
+            message?: string;
+            data?: Record<string, never>;
         };
         PdfInfo: {
             /** Format: int32 */
             pageNum?: number;
             script?: string;
         };
-        ScriptResponseDto: {
+        ScriptDto: {
             /** Format: int64 */
             pdfId?: number;
-            pdfInfo?: components["schemas"]["PdfInfo"];
+            pdfInfos?: components["schemas"]["PdfInfo"][];
+        };
+        ApiResponseMonoSpeechDto: {
+            success?: boolean;
+            code?: string;
+            message?: string;
+            data?: components["schemas"]["SpeechDto"];
+        };
+        SpeechDto: Record<string, never>;
+        ScriptRequest: {
+            /** Format: int64 */
+            pdfId?: number;
+            pdfName?: string;
+        };
+        ApiResponseMonoScriptDto: {
+            success?: boolean;
+            code?: string;
+            message?: string;
+            data?: components["schemas"]["ScriptDto"];
+        };
+        ApiResponseListFileDto: {
+            success?: boolean;
+            code?: string;
+            message?: string;
+            data?: components["schemas"]["FileDto"][];
         };
     };
     responses: never;
@@ -207,7 +285,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RegisterRequest"];
+                "application/json": components["schemas"]["JoinRequest"];
             };
         };
         responses: {
@@ -217,7 +295,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["Member"];
+                    "*/*": components["schemas"]["ApiResponseMember"];
                 };
             };
         };
@@ -244,7 +322,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["FileDto"];
+                    "*/*": components["schemas"]["ApiResponseFileDto"];
                 };
             };
         };
@@ -264,7 +342,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": Record<string, never>;
+                    "*/*": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };
@@ -288,23 +366,23 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": {
-                        [key: string]: string;
-                    };
+                    "*/*": components["schemas"]["ApiResponseObject"];
                 };
             };
         };
     };
-    script: {
+    speech: {
         parameters: {
-            query: {
-                scriptDto: components["schemas"]["ScriptDto"];
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScriptDto"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -312,7 +390,31 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ScriptResponseDto"];
+                    "*/*": components["schemas"]["ApiResponseMonoSpeechDto"];
+                };
+            };
+        };
+    };
+    script: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScriptRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseMonoScriptDto"];
                 };
             };
         };
@@ -332,7 +434,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["FileDto"][];
+                    "*/*": components["schemas"]["ApiResponseListFileDto"];
                 };
             };
         };

@@ -34,11 +34,9 @@ public class AIController {
             description = "PDF ID와 파일명을 받아 PDF에서 대본을 생성합니다."
     )
     @PostMapping("/script")
-    public ApiResponse<Mono<ScriptDto>> script(@RequestBody ScriptRequest req) {
-        // fastAPI 수정되면 저장 service 추가
-        return ApiResponse.success(
-                apiService.postGenerateScript(req.pdfId, req.pdfName)
-        );
+    public Mono<ApiResponse<ScriptDto>> script(@RequestBody ScriptRequest req) {
+        return apiService.postGenerateScript(req.pdfId, req.pdfName)
+                .map(ApiResponse::success);
     }
 
     @Operation(
@@ -53,10 +51,9 @@ public class AIController {
                 """
     )
     @PostMapping("/speech")
-    public ApiResponse<Mono<SpeechDto>> speech(@RequestBody ScriptDto scriptDto) {
+    public Mono<ApiResponse<SpeechDto>> speech(@RequestBody ScriptDto scriptDto) {
         // fastAPI 수정되면 저장 service 추가
-        return ApiResponse.success(
-                apiService.postSpeech(scriptDto)
-        );
+        return apiService.postSpeech(scriptDto)
+                .map(ApiResponse::success);
     }
 }

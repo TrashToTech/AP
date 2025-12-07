@@ -2,33 +2,32 @@
 
 import { useEffect, useState } from "react";
 import FileUpload from "@/app/components/FileUpload";
-import { authFetch } from "@/lib/authFetch";
+import { apiFetch } from "@/lib/apiFetch";
+
+type HistoryItem = { originalName?: string; storedName?: string; id?: number };
 
 export default function AppLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [history, setHistory] = useState([]);
+    const [history, setHistory] = useState<HistoryItem[]>([]);
     const [token, setToken] = useState("");
 
-    // 토큰 로드
     useEffect(() => {
         const tk = localStorage.getItem("accessToken") ?? "";
         setToken(tk);
     }, []);
 
-    // 히스토리 로딩
     useEffect(() => {
         if (!token) return;
 
         const fetchHistory = async () => {
             try {
-                const res = await authFetch("http://localhost:8080/api/file/list", {
-                    method: "GET",
-                });
+                const body = await apiFetch("/api/file/list", "get");
 
-                if (!res.ok) throw new Error("불러오기 실패");
-
-                const data = await res.json();
-                setHistory(data);
+                if (body && (body as any).success) {
+                    setHistory((body as any).data ?? []);
+                } else {
+                    console.error((body as any)?.message);
+                }
             } catch (err) {
                 console.error("Error fetching history", err);
             }
@@ -37,41 +36,31 @@ export default function AppLayout() {
         fetchHistory();
     }, [token]);
 
+    console.log("token", token)
+
     return (
         <div className="flex h-screen bg-gray-100">
-            {/* Sidebar */}
             <div className={`${sidebarOpen ? "w-64" : "w-16"} bg-white shadow-xl transition-all duration-300 flex flex-col`}>
                 <div className="flex items-center justify-between p-4 border-b">
                     <h2 className={`${sidebarOpen ? "text-lg" : "hidden"} font-semibold`}>기록</h2>
-                    <button
-                        className="p-2 hover:bg-gray-200 rounded"
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                    >
+                    <button className="p-2 hover:bg-gray-200 rounded" onClick={() => setSidebarOpen(!sidebarOpen)}>
                         {sidebarOpen ? "←" : "→"}
                     </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                    {history.map((item, idx) => (
-                        <div
-                            key={idx}
-                            className="p-3 bg-gray-100 rounded-lg text-sm cursor-pointer hover:bg-gray-200"
-                        >
-                            {sidebarOpen
-                                ? item.originalName ?? "이름 없음"
-                                : (item.originalName?.slice(0, 3) || "") + ".."}
+                    {Array.isArray(history) && history.map((item, idx) => (
+                        <div key={idx} className="p-3 bg-gray-100 rounded-lg text-sm cursor-pointer hover:bg-gray-200">
+                            {sidebarOpen ? item.originalName ?? "이름 없음" : (item.originalName?.slice(0, 3) || "") + ".."}
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Main Content */}
             <main className="flex-1 p-10 overflow-auto">
                 <h1 className="text-2xl font-bold mb-6">PDF 업로드</h1>
                 <FileUpload
-                    onHistoryAdd={(name) =>
-                        setHistory([...history, { originalName: name }])
-                    }
+                    onHistoryAdd={(name: string) => setHistory([...history, { originalName: name }])}
                     token={token}
                 />
             </main>

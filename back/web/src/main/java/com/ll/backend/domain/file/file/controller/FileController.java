@@ -45,6 +45,7 @@ public class FileController {
     @GetMapping("list")
     public ApiResponse<List<FileDto>> list(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        System.out.println("filelist");
         return ApiResponse.success(
                 fileService.findByMemberId(userDetails.getMemberId())
                         .stream()

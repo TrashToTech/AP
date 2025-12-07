@@ -34,8 +34,12 @@ class PipeLogic:
             print(f"\n발표 자료가 아닙니다 (유형: {validation_result['reason']})")
             print("대본 생성을 중단합니다.\n")
             texts_dir = self.exporter.get_path("texts")
-            (texts_dir / make_filename(pdf_id, 1, "txt")).write_text("", encoding="utf-8")
-            return build_generate_script_response(pdf_id, 1, "")
+            # 모든 페이지에 빈 파일 저장
+            result_scripts = []
+            for page_num in sorted(loader.pdf_contents.keys()):
+                (texts_dir / make_filename(pdf_id, page_num, "txt")).write_text("", encoding="utf-8")
+                result_scripts.append({"pageNum": page_num, "script": ""})
+            return build_generate_script_response(pdf_id, result_scripts)
 
         # 페이지 필터링 (대본 생성이 필요한 페이지만)
         page_validations = validation_result['page_validations']
@@ -54,12 +58,13 @@ class PipeLogic:
         print("="*60)
         scripts = self.script_generator.generate_script(filtered_contents)
 
-        # 3단계: 결과 저장
+        # 3단계: 결과 저장 및 응답 생성
         print("\n" + "="*60)
         print("[3단계] 대본 저장")
         print("="*60)
         texts_dir = self.exporter.get_path("texts")
 
+        result_scripts = []
         if scripts:
             # 스킵된 페이지를 고려하여 저장
             script_idx = 0
@@ -67,30 +72,56 @@ class PipeLogic:
                 if page_validations.get(page_num, False):
                     # 대본 생성이 필요한 페이지
                     if script_idx < len(scripts):
+                        script_text = scripts[script_idx]
                         (texts_dir / make_filename(pdf_id, page_num, "txt")).write_text(
-                            scripts[script_idx], encoding="utf-8"
+                            script_text, encoding="utf-8"
                         )
+                        result_scripts.append({"pageNum": page_num, "script": script_text})
                         script_idx += 1
                 else:
                     # 스킵된 페이지는 빈 파일 저장
                     (texts_dir / make_filename(pdf_id, page_num, "txt")).write_text("", encoding="utf-8")
+                    result_scripts.append({"pageNum": page_num, "script": ""})
 
             print(f"{len(scripts)}개 페이지 대본 저장 완료\n")
-            return build_generate_script_response(pdf_id, 1, scripts[0])
         else:
-            (texts_dir / make_filename(pdf_id, 1, "txt")).write_text("", encoding="utf-8")
+            # 생성된 대본이 없으면 모든 페이지 빈 파일
+            for page_num in sorted(loader.pdf_contents.keys()):
+                (texts_dir / make_filename(pdf_id, page_num, "txt")).write_text("", encoding="utf-8")
+                result_scripts.append({"pageNum": page_num, "script": ""})
             print("생성된 대본이 없습니다.\n")
-            return build_generate_script_response(pdf_id, 1, "")
 
-    def synthesize_speech(self, pdf_id: int, page_num: int, script: str) -> Dict:
-        """텍스트를 음성으로 변환."""
+        return build_generate_script_response(pdf_id, result_scripts)
+
+    def synthesize_speech(self, pdf_id: int, pdf_info: list) -> Dict:
+        """텍스트를 음성으로 변환 (배치 처리)."""
         self.exporter.ensure_dirs()
-        if page_num < 1:
-            raise ValueError("pageNum은 1 이상의 정수여야 합니다.")
 
-        audio_name = make_filename(pdf_id, page_num, "wav")
-        audio_path = self.exporter.get_path("audio") / audio_name
-
+        result_audios = []
         tts = TtsEngine(engine="pyttsx", prefer_lang="ko")
-        tts.synthesize(text=script, output_path=str(audio_path))
-        return build_speech_response(pdf_id, page_num, audio_name)
+
+        for page_info in pdf_info:
+            page_num = page_info["pageNum"]
+            script = page_info["script"]
+
+            if page_num < 1:
+                raise ValueError(f"pageNum은 1 이상의 정수여야 합니다. (현재: {page_num})")
+
+            # 빈 대본은 건너뛰기
+            if not script or not script.strip():
+                print(f"페이지 {page_num}: 빈 대본, TTS 건너뛰기")
+                continue
+
+            audio_name = make_filename(pdf_id, page_num, "wav")
+            audio_path = self.exporter.get_path("audio") / audio_name
+
+            try:
+                print(f"페이지 {page_num}: TTS 합성 중...")
+                tts.synthesize(text=script, output_path=str(audio_path))
+                result_audios.append({"pageNum": page_num, "name": audio_name})
+                print(f"페이지 {page_num}: TTS 완료 ({audio_name})")
+            except Exception as e:
+                print(f"페이지 {page_num}: TTS 실패 - {e}")
+                raise
+
+        return build_speech_response(pdf_id, result_audios)

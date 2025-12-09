@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class WebClientConfig {
@@ -19,10 +20,10 @@ public class WebClientConfig {
 
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 600000) // 연결 대기 10분
-                .responseTimeout(Duration.ofMinutes(10))              // ★ 응답 대기 10분
+                .responseTimeout(Duration.ofMinutes(100))              // 전체 응답 대기 100분
                 .doOnConnected(conn -> conn
-                        .addHandlerLast(new ReadTimeoutHandler(600000))  // ★ read timeout
-                        .addHandlerLast(new WriteTimeoutHandler(600000)) // ★ write timeout
+                        .addHandlerLast(new ReadTimeoutHandler(100, TimeUnit.MINUTES))  // read timeout 대기 100분 (임시)
+                        .addHandlerLast(new WriteTimeoutHandler(100, TimeUnit.MINUTES)) // write timeout 대기 100분 (임시)
                 );
 
         return WebClient.builder()

@@ -50,6 +50,8 @@ export default function FileUpload({ onHistoryAdd, token }: { onHistoryAdd: (nam
                 body: JSON.stringify(scriptBody),
             });
 
+            console.log("scriptRes", scriptRes)
+
             if (!scriptRes || !(scriptRes as any).success) {
                 setStatus("error");
                 return;

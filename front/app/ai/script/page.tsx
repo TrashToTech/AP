@@ -36,8 +36,6 @@ export default function AppLayout() {
         fetchHistory();
     }, [token]);
 
-    console.log("token", token)
-
     return (
         <div className="flex h-screen bg-gray-100">
             <div className={`${sidebarOpen ? "w-64" : "w-16"} bg-white shadow-xl transition-all duration-300 flex flex-col`}>

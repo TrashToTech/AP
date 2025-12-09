@@ -30,7 +30,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String header = request.getHeader("Authorization");
-        System.out.println("header = " + header);
 
         if (header != null && header.startsWith("Bearer ")) {
             String accessToken = header.substring(7);
@@ -39,7 +38,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 System.out.println("실패");
                 return;
             }
-            System.out.println("여기");
 
             CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(accessToken, JwtType.ACCESS);
             setAuthentication(userDetails);
@@ -94,7 +92,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 path.startsWith("/api/member") ||
                 path.startsWith("/api/auth") ||
                 path.startsWith("/h2-console") ||
-                path.startsWith("/api/ai") ||
                 path.equals("/");
     }
 

@@ -21,6 +21,7 @@ export * from './joinRequest';
 export * from './loginRequest';
 export * from './member';
 export * from './pdfInfo';
+export * from './removeParams';
 export * from './script';
 export * from './scriptDto';
 export * from './scriptRequest';

@@ -11,4 +11,6 @@ public interface FileDocumentRepository extends JpaRepository<FileDocument, Long
     Optional<FileDocument> findByStoredName(String pdfName);
 
     List<FileDocument> findByMemberId(Long memberId);
+
+    void deleteByIdAndMemberId(long pdfId, Long memberId);
 }

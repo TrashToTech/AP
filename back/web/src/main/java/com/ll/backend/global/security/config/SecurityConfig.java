@@ -38,10 +38,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/member/join", "/api/auth/**",
+                        .requestMatchers(
+                                "/api/member/join",
+                                "/api/auth/**",
                                 "/h2-console/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**")
+                                "/v3/api-docs/**",
+                                "/error"
+                        )
                         .permitAll()  //인증없이 접속가능
                         .anyRequest()
                         .authenticated() // 인증 필요
@@ -56,11 +60,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // jwt 유효성 검사;
                 .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(user -> user.userService(customOAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
-                );
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//                .oauth2Login(oauth -> oauth
+//                        .userInfoEndpoint(user -> user.userService(customOAuth2UserService))
+//                        .successHandler(oAuth2SuccessHandler)
+//                );
         return http.build();
     }
 

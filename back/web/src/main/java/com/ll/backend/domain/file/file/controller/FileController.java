@@ -46,10 +46,9 @@ public class FileController {
             summary = "업로드된 파일 리스트 조회",
             description = "로그인한 사용자가 업로드한 PDF 목록을 반환합니다."
     )
-    @GetMapping("list")
+    @GetMapping("/list")
     public ApiResponse<List<FileDto>> list(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        System.out.println("filelist");
         return ApiResponse.success(
                 fileService.findByMemberId(userDetails.getMemberId())
                         .stream()
@@ -57,5 +56,11 @@ public class FileController {
                         .collect(Collectors.toList())
 
         );
+    }
+
+    @PostMapping("/remove")
+    public ApiResponse<Void> remove(@RequestParam("id") long pdfId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        fileService.remove(pdfId, userDetails.getMemberId());
+        return ApiResponse.successVoid();
     }
 }

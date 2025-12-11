@@ -103,4 +103,9 @@ public class FileService {
     public List<FileDocument> findByMemberId(Long memberId) {
         return fileDocumentRepository.findByMemberId(memberId);
     }
+
+    @Transactional
+    public void remove(long pdfId, Long memberId) {
+        fileDocumentRepository.deleteByIdAndMemberId(pdfId, memberId);
+    }
 }

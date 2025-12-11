@@ -2,10 +2,7 @@ package com.ll.backend.domain.ai.entity;
 
 import com.ll.backend.domain.file.file.entity.FileDocument;
 import com.ll.backend.global.entity.BaseTime;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Script extends BaseTime {
     private int pageNum;
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String script;
     private String audioPath;
     @ManyToOne(fetch = FetchType.LAZY)

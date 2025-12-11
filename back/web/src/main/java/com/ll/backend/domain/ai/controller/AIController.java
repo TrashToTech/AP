@@ -37,26 +37,24 @@ public class AIController {
             description = "PDF ID와 파일명을 받아 PDF에서 대본을 생성합니다."
     )
     @PostMapping("/script")
-    public Mono<ApiResponse<ScriptDto>> script(@RequestBody ScriptRequest req) {
+    // 1. 리턴 타입을 Mono<ApiResponse<ScriptDto>> 에서 ApiResponse<ScriptDto> 로 변경!
+    public ApiResponse<ScriptDto> script(@RequestBody ScriptRequest req) {
         System.out.println("대본 생성 시작");
 
-        return apiService.postGenerateScript(req.pdfId, req.pdfName)
+        // 2. 기존 로직 뒤에 .block() 을 붙여서 결과를 기다렸다가 반환!
+        return apiService.postGenerateScript(req.pdfId(), req.pdfName()) // record라면 getter() 사용
                 .doOnSubscribe(s -> System.out.println("FastAPI 요청 시작"))
-                .flatMap(scriptDto ->  {
-                    System.out.println("flatmap");
-                    if (scriptDto == null || scriptDto.getPdfInfos() == null || scriptDto.getPdfInfos().isEmpty()) {
+                .flatMap(scriptDto -> {
+                    if (scriptDto == null || scriptDto.pdfInfo() == null || scriptDto.pdfInfo().isEmpty()) { // record라면 getter 확인
                         return Mono.error(new IllegalStateException("대본 생성 실패"));
                     }
-
                     System.out.println("FastAPI 응답 수신, DB 저장 시작");
-
-                    return scriptService.save(scriptDto)
-                            .thenReturn(scriptDto);
+                    return scriptService.save(scriptDto).thenReturn(scriptDto);
                 })
                 .map(ApiResponse::success)
                 .doOnSuccess(res -> System.out.println("FastAPI 응답 수신 완료"))
                 .doOnError(err -> System.out.println("FastAPI 요청 실패: " + err))
-                .doFinally(signal -> System.out.println("대본 생성 완료 (" + signal + ")"));
+                .block(); // <--- ★★★ 여기가 핵심! ★★★
     }
 
     @Operation(

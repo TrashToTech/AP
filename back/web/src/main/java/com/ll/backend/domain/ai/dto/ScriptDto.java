@@ -1,11 +1,9 @@
 package com.ll.backend.domain.ai.dto;
 
-import lombok.Getter;
-
 import java.util.List;
 
-@Getter
-public class ScriptDto {
-    private long pdfId;
-    private List<PdfInfo> pdfInfos;
-}
+// class 대신 record 사용 (Lombok 불필요)
+public record ScriptDto(
+        long pdfId,
+        List<PdfInfo> pdfInfo
+) {}

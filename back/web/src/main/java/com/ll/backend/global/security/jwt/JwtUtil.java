@@ -1,6 +1,5 @@
 package com.ll.backend.global.security.jwt;
 
-import com.ll.backend.domain.member.member.entity.Member;
 import com.ll.backend.global.security.dto.CustomUserData;
 import com.ll.backend.global.security.dto.CustomUserDetails;
 import io.jsonwebtoken.Claims;
@@ -78,7 +77,12 @@ public class JwtUtil {
 
     public CustomUserDetails getUserDetailsFromToken(String token, JwtType type) {
         Claims claims = parseToken(token, type);
+        String username = claims.get("username", String.class);
+        // 👇 여기가 중요합니다! 토큰의 키값("role")과 정확히 일치해야 합니다.
+        String role = claims.get("role", String.class);
 
+        // 👇 로그 추가
+        System.out.println("🔎 [Debug] JwtUtil - 토큰에서 꺼낸 role: " + role);
         CustomUserData userData = new CustomUserData(
                 claims.get("memberId", Long.class),
                 "",

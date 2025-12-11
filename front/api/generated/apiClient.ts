@@ -15,6 +15,7 @@ import type {
   ApiResponseVoid,
   JoinRequest,
   LoginRequest,
+  RemoveParams,
   ScriptDto,
   ScriptRequest,
   UploadBody
@@ -99,12 +100,52 @@ formData.append(`file`, uploadBody.file)
 
 
 
+export type removeResponse200 = {
+  data: ApiResponseVoid
+  status: 200
+}
+    
+export type removeResponseSuccess = (removeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type removeResponse = (removeResponseSuccess)
+
+export const getRemoveUrl = (params: RemoveParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/file/remove?${stringifiedParams}` : `/api/file/remove`
+}
+
+export const remove = async (params: RemoveParams, options?: RequestInit): Promise<removeResponse> => {
+  
+  return fetchWrapper<removeResponse>(getRemoveUrl(params),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
 /**
  * RefreshToken 을 이용해 AccessToken 을 재발급합니다.
  * @summary 토큰 재발급
  */
 export type reIssueResponse200 = {
-  data: ApiResponseVoid
+  data: ApiResponseObject
   status: 200
 }
     

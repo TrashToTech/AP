@@ -5,9 +5,7 @@
  * AI Presentation API 문서
  * OpenAPI spec version: v1.0
  */
-import type { PdfInfo } from './pdfInfo';
 
-export interface ScriptDto {
-  pdfId?: number;
-  pdfInfo?: PdfInfo[];
-}
+export type RemoveParams = {
+id: number;
+};

@@ -21,19 +21,19 @@ public class ScriptService {
     }
 
     public Mono<Void> save(ScriptDto scriptDto) {
-        if (scriptDto == null || scriptDto.getPdfInfos() == null || scriptDto.getPdfInfos().isEmpty()) {
+        if (scriptDto == null || scriptDto.pdfInfo() == null || scriptDto.pdfInfo().isEmpty()) {
             return Mono.empty();
         }
 
-        FileDocument fileDocument = fileDocumentRepository.findById(scriptDto.getPdfId())
+        FileDocument fileDocument = fileDocumentRepository.findById(scriptDto.pdfId())
                 .orElseThrow();
 
-        return Flux.fromIterable(scriptDto.getPdfInfos())
+        return Flux.fromIterable(scriptDto.pdfInfo())
                 .flatMap(info -> {
 
                     Script script = Script.builder()
-                            .pageNum(info.getPageNum())
-                            .script(info.getScript())
+                            .pageNum(info.pageNum())
+                            .script(info.script())
                             .fileDocument(fileDocument)   // 필요하면 pdfId도 채워
                             .build();
 

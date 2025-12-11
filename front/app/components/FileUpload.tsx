@@ -2,7 +2,7 @@
 
 import { Upload, Loader2, FileText, DownloadCloud, AlertCircle } from "lucide-react";
 import { useState, useCallback, useRef } from "react";
-import { upload, script } from "@/api/generated/apiClient";
+import { upload, script, remove } from "@/api/generated/apiClient";
 import type { uploadResponse, scriptResponse } from "@/api/generated/apiClient";
 
 // ----------------------------------------------------------------------
@@ -56,7 +56,19 @@ function useFileUpload(onHistoryAdd: (name: string) => void) {
                 pdfName: uploaded.storedName,
             });
 
-            if (scriptRes.status !== 200 || !scriptRes.data?.success) throw new Error("스크립트 생성 실패");
+            if (scriptRes.status !== 200 || !scriptRes.data?.success) {
+                console.warn(`스크립트 생성 실패. 업로드된 파일(ID: ${uploaded.pdfId})을 삭제합니다.`);
+
+                try {
+                    // _delete 함수 사용 (파라미터 이름은 백엔드 스펙에 따라 'id'가 아닐 수도 있으니 확인 필요. 보통 id입니다)
+                    await remove({ id: uploaded.pdfId });
+                } catch (deleteError) {
+                    console.error("파일 삭제 실패:", deleteError);
+                    // 삭제 실패는 로그만 남기고, 원래 목적인 스크립트 생성 실패 에러를 던집니다.
+                }
+
+                throw new Error("스크립트 생성에 실패하여 파일을 삭제했습니다.");
+            }
 
             setResult(scriptRes.data.data);
             setStatus("done");

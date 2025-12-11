@@ -35,7 +35,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String accessToken = header.substring(7);
 
             if (!validateAccessToken(accessToken, response)) {
-                System.out.println("실패");
                 return;
             }
 

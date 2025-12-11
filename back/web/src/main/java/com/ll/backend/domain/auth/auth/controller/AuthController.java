@@ -53,9 +53,11 @@ public class AuthController {
             description = "RefreshToken 을 이용해 AccessToken 을 재발급합니다."
     )
     @PostMapping("/reIssue")
-    public ApiResponse<Void> reIssue(HttpServletRequest request, HttpServletResponse response) {
-        authService.reIssue(request, response);
+    public ApiResponse<?> reIssue(HttpServletRequest request, HttpServletResponse response) {
+        String token = authService.reIssue(request, response);
 
-        return ApiResponse.successVoid();
+        return ApiResponse.success(
+                Map.of("accessToken", token)
+        );
     }
 }

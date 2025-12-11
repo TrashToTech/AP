@@ -243,7 +243,7 @@ export interface components {
             pdfId?: number;
             pdfInfos?: components["schemas"]["PdfInfo"][];
         };
-        ApiResponseMonoSpeechDto: {
+        ApiResponseSpeechDto: {
             success?: boolean;
             code?: string;
             message?: string;
@@ -255,7 +255,7 @@ export interface components {
             pdfId?: number;
             pdfName?: string;
         };
-        ApiResponseMonoScriptDto: {
+        ApiResponseScriptDto: {
             success?: boolean;
             code?: string;
             message?: string;
@@ -390,7 +390,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseMonoSpeechDto"];
+                    "*/*": components["schemas"]["ApiResponseSpeechDto"];
                 };
             };
         };
@@ -414,7 +414,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ApiResponseMonoScriptDto"];
+                    "*/*": components["schemas"]["ApiResponseScriptDto"];
                 };
             };
         };

@@ -7,6 +7,7 @@ import com.ll.backend.global.security.dto.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,8 +31,11 @@ public class FileController {
             summary = "파일 업로드",
             description = "PDF 파일을 업로드합니다. 로그인한 사용자만 가능하며 MultipartFile 형식을 사용합니다."
     )
-    @PostMapping("/upload")
-    public ApiResponse<FileDto> upload(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    @PostMapping(
+            value = "/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ApiResponse<FileDto> upload(@RequestPart("file") MultipartFile file, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return ApiResponse.success(
                 new FileDto(fileService.save(file, userDetails.getMemberId()))

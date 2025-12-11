@@ -17,6 +17,7 @@ export async function POST(req: Request) {
                 Authorization: req.headers.get("authorization") ?? "",
             },
             body: JSON.stringify(body),
+            signal: controller.signal,
             // Node fetch는 기본 타임아웃 없음 → 무한대
         });
 

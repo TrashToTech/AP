@@ -2,6 +2,7 @@ package com.ll.backend.domain.ai.controller;
 
 import com.ll.backend.domain.ai.dto.ScriptDto;
 import com.ll.backend.domain.ai.dto.SpeechDto;
+import com.ll.backend.domain.ai.service.ScriptService;
 import com.ll.backend.global.dto.ApiResponse;
 import com.ll.backend.global.webClient.service.ApiService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,9 +21,11 @@ import reactor.core.publisher.Mono;
 public class AIController {
 
     private final ApiService apiService;
+    private final ScriptService scriptService;
 
-    public AIController(ApiService apiService) {
+    public AIController(ApiService apiService, ScriptService scriptService) {
         this.apiService = apiService;
+        this.scriptService = scriptService;
     }
 
     record ScriptRequest(
@@ -35,8 +38,25 @@ public class AIController {
     )
     @PostMapping("/script")
     public Mono<ApiResponse<ScriptDto>> script(@RequestBody ScriptRequest req) {
+        System.out.println("대본 생성 시작");
+
         return apiService.postGenerateScript(req.pdfId, req.pdfName)
-                .map(ApiResponse::success);
+                .doOnSubscribe(s -> System.out.println("FastAPI 요청 시작"))
+                .flatMap(scriptDto ->  {
+                    System.out.println("flatmap");
+                    if (scriptDto == null || scriptDto.getPdfInfos() == null || scriptDto.getPdfInfos().isEmpty()) {
+                        return Mono.error(new IllegalStateException("대본 생성 실패"));
+                    }
+
+                    System.out.println("FastAPI 응답 수신, DB 저장 시작");
+
+                    return scriptService.save(scriptDto)
+                            .thenReturn(scriptDto);
+                })
+                .map(ApiResponse::success)
+                .doOnSuccess(res -> System.out.println("FastAPI 응답 수신 완료"))
+                .doOnError(err -> System.out.println("FastAPI 요청 실패: " + err))
+                .doFinally(signal -> System.out.println("대본 생성 완료 (" + signal + ")"));
     }
 
     @Operation(

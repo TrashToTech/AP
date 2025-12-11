@@ -54,7 +54,7 @@ public class AuthService {
     /**
      * 토큰 재발급
      */
-    public void reIssue(HttpServletRequest request, HttpServletResponse response) {
+    public String reIssue(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractRefreshToken(request.getCookies());
 
         if (jwtUtil.isExpired(refreshToken, JwtType.REFRESH)) {
@@ -62,12 +62,19 @@ public class AuthService {
         }
 
         CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(refreshToken, JwtType.REFRESH);
-        verifyRefreshTokenWithRedis(userDetails.getMemberId(), refreshToken);
+        verifyRefreshTokenWithRedis(userDetails.getMemberId(), refreshToken, response);
 
         TokenInfo newTokenInfo = generateTokenInfo(userDetails);
-        redisRepository.modify(REDIS_REFRESH_PREFIX + userDetails.getMemberId(), refreshToken);
+        redisRepository.modify(REDIS_REFRESH_PREFIX + userDetails.getMemberId(), newTokenInfo.getRefreshToken());
 
         addTokensToResponse(response, newTokenInfo);
+        return newTokenInfo.getAccessToken();
+    }
+
+    public void logout(HttpServletResponse response, long memberId) {
+        redisRepository.delete(REDIS_REFRESH_PREFIX + memberId);
+        ResponseCookie expiredCookie = expiredCookie();
+        response.addHeader("Set-Cookie", expiredCookie.toString());
     }
 
     // ================== Private Helper Methods ==================
@@ -103,9 +110,11 @@ public class AuthService {
                 .orElseThrow(() -> new GlobalException(GlobalErrorCode.NOT_FOUND_REFRESHTOKEN));
     }
 
-    private void verifyRefreshTokenWithRedis(Long memberId, String requestToken) {
+    private void verifyRefreshTokenWithRedis(Long memberId, String requestToken, HttpServletResponse response) {
         String redisToken = redisRepository.get(REDIS_REFRESH_PREFIX + memberId);
         if (redisToken == null) {
+            ResponseCookie expiredCookie = expiredCookie();
+            response.addHeader("Set-Cookie", expiredCookie.toString());
             throw new GlobalException(GlobalErrorCode.INVALID_SESSTION);
         }
 
@@ -117,6 +126,16 @@ public class AuthService {
     private ResponseCookie createRefreshCookie(String refreshToken) {
         return ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
                 .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .build();
+    }
+
+    private ResponseCookie expiredCookie() {
+        return ResponseCookie.from("refreshToken", "")
+                .path("/")
+                .maxAge(0)
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")

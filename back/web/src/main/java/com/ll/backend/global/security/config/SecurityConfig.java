@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/test-data/**",
                                 "/error"
                         )
                         .permitAll()  //인증없이 접속가능

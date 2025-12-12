@@ -4,7 +4,7 @@ import com.ll.backend.domain.ai.dto.ScriptDto;
 import com.ll.backend.domain.ai.dto.SpeechDto;
 import com.ll.backend.domain.ai.service.ScriptService;
 import com.ll.backend.global.dto.ApiResponse;
-import com.ll.backend.global.webClient.service.ApiService;
+import com.ll.backend.global.web.client.service.ApiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,15 +37,13 @@ public class AIController {
             description = "PDF ID와 파일명을 받아 PDF에서 대본을 생성합니다."
     )
     @PostMapping("/script")
-    // 1. 리턴 타입을 Mono<ApiResponse<ScriptDto>> 에서 ApiResponse<ScriptDto> 로 변경!
     public ApiResponse<ScriptDto> script(@RequestBody ScriptRequest req) {
         System.out.println("대본 생성 시작");
 
-        // 2. 기존 로직 뒤에 .block() 을 붙여서 결과를 기다렸다가 반환!
-        return apiService.postGenerateScript(req.pdfId(), req.pdfName()) // record라면 getter() 사용
+        return apiService.postGenerateScript(req.pdfId(), req.pdfName())
                 .doOnSubscribe(s -> System.out.println("FastAPI 요청 시작"))
                 .flatMap(scriptDto -> {
-                    if (scriptDto == null || scriptDto.pdfInfo() == null || scriptDto.pdfInfo().isEmpty()) { // record라면 getter 확인
+                    if (scriptDto == null || scriptDto.pdfInfo() == null || scriptDto.pdfInfo().isEmpty()) {
                         return Mono.error(new IllegalStateException("대본 생성 실패"));
                     }
                     System.out.println("FastAPI 응답 수신, DB 저장 시작");
@@ -54,7 +52,7 @@ public class AIController {
                 .map(ApiResponse::success)
                 .doOnSuccess(res -> System.out.println("FastAPI 응답 수신 완료"))
                 .doOnError(err -> System.out.println("FastAPI 요청 실패: " + err))
-                .block(); // <--- ★★★ 여기가 핵심! ★★★
+                .block();
     }
 
     @Operation(

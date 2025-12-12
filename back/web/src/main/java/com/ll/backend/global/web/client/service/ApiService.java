@@ -1,4 +1,4 @@
-package com.ll.backend.global.webClient.service;
+package com.ll.backend.global.web.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ll.backend.domain.ai.dto.ScriptDto;

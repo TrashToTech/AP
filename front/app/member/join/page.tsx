@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-// ⭐ orval에서 생성된 join API
 import { join } from "@/api/generated/apiClient";
 import type { joinResponse } from "@/api/generated/apiClient";
 
@@ -38,20 +37,12 @@ export default function SignUpPage() {
 
         try {
             setResult("");
-
-            // ⭐ orval + fetchWrapper 사용
-            // joinRequest 타입은 Swagger의 JoinRequest와 자동 매칭됨
             const res: joinResponse = await join(joinRequest);
 
-            // fetchWrapper가 반환한 구조:
-            // { data: 서버 JSON, status: number, headers: Headers }
-            // 여기서 res.data는 Spring이 내려준 JSON 전체
             if (res.status === 200 && res.data?.success) {
                 setResult("회원가입에 성공했습니다. 로그인 하세요.");
                 setStatus(true);
 
-                // 원하면 약간 딜레이 후 로그인 페이지 이동도 가능
-                // setTimeout(() => router.push("/member/login"), 1000);
             } else {
                 setResult(res.data?.message ?? "회원가입에 실패했습니다.");
                 setStatus(false);

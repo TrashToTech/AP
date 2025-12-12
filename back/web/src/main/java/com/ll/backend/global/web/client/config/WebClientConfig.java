@@ -1,4 +1,4 @@
-package com.ll.backend.global.webClient;
+package com.ll.backend.global.web.client.config;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

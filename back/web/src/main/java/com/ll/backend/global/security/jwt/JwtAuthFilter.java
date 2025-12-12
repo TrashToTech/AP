@@ -24,17 +24,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. 요청 URL과 헤더 로그 찍어보기 (디버깅용)
         String header = request.getHeader("Authorization");
-        System.out.println("🚩 [Filter] Request: " + request.getRequestURI());
-        System.out.println("🚩 [Filter] Authorization Header: " + header);
 
         if (isPublicEndpoint(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. 헤더 검사
+        // 헤더 검사
         if (header != null && header.startsWith("Bearer ")) {
             String accessToken = header.substring(7);
 
@@ -42,17 +39,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (validateAccessToken(accessToken, response)) {
                 CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(accessToken, JwtType.ACCESS);
                 setAuthentication(userDetails);
-                System.out.println("✅ [Filter] 인증 객체 설정 완료: " + userDetails.getUsername());
-            } else {
-                System.out.println("❌ [Filter] 토큰 유효성 검증 실패");
-                return; // validateAccessToken 내부에서 에러 응답을 보냈으므로 리턴
             }
-        } else {
-            System.out.println("⚠️ [Filter] Authorization 헤더가 없거나 Bearer 타입이 아님.");
         }
 
-        // 3. ★★★ 핵심 수정: 토큰이 있든 없든, 다음 필터로 넘겨야 함! ★★★
-        // (이 부분이 if문 안에 있으면 안 됨!)
         filterChain.doFilter(request, response);
     }
 
@@ -102,6 +91,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 path.startsWith("/api/member") ||
                 path.startsWith("/api/auth") ||
                 path.startsWith("/h2-console") ||
+                path.startsWith("/test-data") ||
                 path.equals("/");
     }
 

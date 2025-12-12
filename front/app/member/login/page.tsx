@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-// ⭐ orval로 생성된 login API
 import { login } from "@/api/generated/apiClient";
 import type { loginResponse } from "@/api/generated/apiClient";
 
@@ -25,15 +24,10 @@ export default function LoginPage() {
 
     const onSubmit = async (form: LoginForm) => {
         try {
-            setResult(""); // 이전 에러 메시지 초기화
+            setResult("");
 
-            // ⭐ orval login API 호출 (fetchWrapper가 토큰, 401 재발급 처리)
             const res: loginResponse = await login(form);
 
-            console.log(res);
-
-            // fetchWrapper 반환 형태: { data: 서버 JSON, status: number, headers: Headers }
-            // Swagger 응답 스키마가 { success, message, data: { accessToken } } 라는 가정
             if (res.status === 200 && res.data.success) {
                 const token = res.data.data?.accessToken;
                 if (token) {
@@ -44,7 +38,6 @@ export default function LoginPage() {
                 setResult(res.data.message ?? "로그인 실패");
             }
         } catch (e: any) {
-            // fetchWrapper에서 401 재발급 시도 후 최종 실패/기타 에러
             setResult("ERROR: " + (e?.message ?? "로그인 중 오류 발생"));
         }
     };

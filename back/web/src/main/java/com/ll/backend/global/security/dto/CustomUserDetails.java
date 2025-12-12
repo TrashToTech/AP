@@ -19,11 +19,7 @@ public class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String role = customUserData.role;
 
-        // 👇👇👇 이 로그를 꼭 추가해서 콘솔을 확인해주세요! 👇👇👇
-        System.out.println("🔎 [Debug] CustomUserDetails - role 값 확인: " + role);
-
         if (role == null || role.isBlank()) {
-            System.out.println("❌ [Debug] role이 비어있습니다! 권한 목록을 빈 값으로 반환합니다.");
             return Collections.emptyList();
         }
 

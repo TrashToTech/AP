@@ -22,4 +22,8 @@ public class Script extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fileDocument_id")
     private FileDocument fileDocument;
+
+    public void updateAudioPath(String audioPath) {
+        this.audioPath = audioPath;
+    }
 }

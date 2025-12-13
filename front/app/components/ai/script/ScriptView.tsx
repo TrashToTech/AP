@@ -1,12 +1,13 @@
 "use client";
 
-import { RefreshCcw, Sparkles, Loader2 } from "lucide-react";
+import { RefreshCcw, Sparkles, Loader2, FileText, ChevronRight } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Document, Page, pdfjs } from 'react-pdf';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
+// PDF 워커 설정 (기존 유지)
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const SERVER_BASE_URL = "http://localhost:8080/test-data/";
@@ -34,71 +35,150 @@ export default function ScriptView({ result, storedFileName, onReset }: ScriptVi
     }
 
     return (
-        <div className="w-full h-full flex flex-col animate-fadeIn bg-white pb-10">
-            {/* 상단 헤더 */}
-            <div className="text-center py-6 flex-shrink-0">
-                <h2 className="text-2xl font-bold text-black mb-1 flex items-center justify-center gap-2">
-                    <Sparkles className="text-yellow-400 fill-yellow-400" size={28} />
-                    대본 생성 완료
-                </h2>
-                <p className="text-sm text-gray-500">좌측 썸네일을 클릭하여 페이지별 대본을 확인하세요.</p>
-            </div>
+        // 전체 컨테이너: 화면 꽉 채우기 (h-full)
+        <div className="flex h-full w-full bg-white overflow-hidden animate-fadeIn">
 
-            {/* 메인 영역 */}
-            <div className="flex-1 min-h-0 flex gap-4 px-4 pb-4 max-w-7xl mx-auto w-full h-[700px]">
-                {/* 좌측 썸네일 */}
-                <div className="w-48 flex-shrink-0 border border-gray-200 rounded-lg bg-gray-50 overflow-hidden flex flex-col">
-                    <div className="p-2 bg-gray-100 border-b text-xs font-bold text-gray-500 text-center">페이지 목록</div>
-                    <div className="overflow-y-auto p-2 space-y-3 custom-scrollbar flex-1">
-                        {fileUrl && (
-                            <Document
-                                file={fileUrl}
-                                onLoadSuccess={onDocumentLoadSuccess}
-                                loading={<div className="py-10 text-center"><Loader2 className="animate-spin inline text-gray-400" /></div>}
-                                error={<div className="text-red-500 text-xs text-center p-4">로딩 실패</div>}
-                            >
-                                {Array.from(new Array(numPages), (el, index) => (
-                                    <div
-                                        key={`thumb_${index}`}
-                                        onClick={() => setActiveIndex(index)}
-                                        className={`cursor-pointer relative w-full aspect-[3/4] bg-white rounded shadow-sm overflow-hidden border-2 transition-all ${activeIndex === index ? "border-blue-500 ring-2 ring-blue-100" : "border-transparent hover:border-gray-300"}`}
-                                    >
-                                        <Page pageNumber={index + 1} width={150} renderTextLayer={false} renderAnnotationLayer={false} />
-                                        <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 rounded">{index + 1}</div>
-                                    </div>
-                                ))}
-                            </Document>
-                        )}
-                    </div>
+            {/* 1. 좌측: 썸네일 목록 (사이드바 바로 옆에 붙음) */}
+            <div className="w-64 flex-shrink-0 border-r border-gray-200 bg-gray-50 flex flex-col h-full">
+                <div className="p-4 border-b border-gray-200 bg-white flex items-center justify-between sticky top-0 z-10">
+                    <span className="font-bold text-gray-700 flex items-center gap-2">
+                        <FileText size={18} className="text-blue-500" /> 페이지 목록
+                    </span>
+                    <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-500">
+                        {numPages}장
+                    </span>
                 </div>
 
-                {/* 중앙 뷰어 & 대본 */}
-                <div className="flex-1 flex flex-col gap-4 min-w-0 h-full">
-                    <div className="flex-1 bg-gray-800/5 rounded-lg border border-gray-200 flex items-center justify-center relative overflow-hidden">
-                        {fileUrl ? (
-                            <div className="h-full w-full overflow-auto flex items-center justify-center p-4 custom-scrollbar">
-                                <Document file={fileUrl} loading={<Loader2 className="animate-spin text-gray-400" />}>
-                                    <Page pageNumber={activeIndex + 1} height={500} renderTextLayer={false} renderAnnotationLayer={false} className="shadow-xl border border-gray-200 bg-white" />
-                                </Document>
-                            </div>
-                        ) : (
-                            <span className="text-gray-400 text-sm">PDF 파일을 불러오는 중...</span>
-                        )}
+                <div className="overflow-y-auto p-3 space-y-4 flex-1 custom-scrollbar">
+                    {fileUrl && (
+                        <Document
+                            file={fileUrl}
+                            onLoadSuccess={onDocumentLoadSuccess}
+                            loading={<div className="py-10 text-center"><Loader2 className="animate-spin inline text-gray-400" /></div>}
+                            error={<div className="text-red-500 text-xs text-center p-4">로드 실패</div>}
+                            className="flex flex-col gap-2"
+                        >
+                            {Array.from(new Array(numPages), (el, index) => (
+                                <div
+                                    key={`thumb_${index}`}
+                                    onClick={() => setActiveIndex(index)}
+                                    className={`
+                                        cursor-pointer relative w-full rounded-md overflow-hidden transition-all duration-200 group
+                                        ${activeIndex === index
+                                            ? "ring-2 ring-blue-500 shadow-md transform scale-[1.02]"
+                                            : "border border-gray-200 hover:border-blue-300 hover:shadow-sm opacity-80 hover:opacity-100"
+                                        }
+                                    `}
+                                >
+                                    {/* 썸네일용 작은 페이지 */}
+                                    <Page
+                                        pageNumber={index + 1}
+                                        width={200}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        className="pointer-events-none"
+                                    />
+
+                                    {/* 페이지 번호 배지 */}
+                                    <div className={`
+                                        absolute bottom-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm
+                                        ${activeIndex === index ? "bg-blue-500 text-white" : "bg-black/60 text-white"}
+                                    `}>
+                                        {index + 1}
+                                    </div>
+                                </div>
+                            ))}
+                        </Document>
+                    )}
+                </div>
+            </div>
+
+            {/* 2. 우측: 메인 뷰어 + 대본 영역 */}
+            <div className="flex-1 flex flex-col min-w-0 h-full bg-white">
+
+                {/* 상단 헤더 (간소화) */}
+                <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6 bg-white shrink-0">
+                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <Sparkles className="text-yellow-500 fill-yellow-500" size={20} />
+                        <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                            AI 분석 결과
+                        </span>
+                    </h2>
+                    <button
+                        onClick={onReset}
+                        className="text-xs text-gray-500 hover:text-red-500 flex items-center gap-1 transition-colors px-3 py-1.5 rounded-full hover:bg-gray-100"
+                    >
+                        <RefreshCcw size={12} /> 초기화
+                    </button>
+                </div>
+
+                {/* 중앙: PDF 뷰어 영역 (가장 넓게) */}
+                <div className="flex-1 bg-gray-100/80 overflow-hidden relative flex items-center justify-center p-4">
+                    {/* 배경 패턴 (선택사항) */}
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                        style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
                     </div>
-                    <div className="h-1/3 min-h-[200px] bg-white rounded-lg border border-gray-200 flex flex-col shadow-sm">
-                        <div className="px-4 py-2 bg-gray-50 border-b flex justify-between items-center"><span className="text-sm font-bold text-gray-700">📜 AI 추천 대본</span></div>
-                        <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
-                            <p className="text-gray-800 whitespace-pre-wrap leading-loose text-lg font-medium">{currentScript || "대본 내용이 없습니다."}</p>
+
+                    {fileUrl ? (
+                        <div className="h-full w-full overflow-auto flex items-center justify-center custom-scrollbar">
+                            <Document file={fileUrl} loading={<div className="mt-20"><Loader2 className="animate-spin text-blue-500" size={40} /></div>}>
+                                <div className=" ring-1 ring-black/5 rounded-sm">
+                                    <Page
+                                        pageNumber={activeIndex + 1}
+                                        height={520}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        className="bg-white"
+                                    />
+                                </div>
+                            </Document>
+                        </div>
+                    ) : (
+                        <span className="text-gray-400 text-sm flex items-center gap-2">
+                            <Loader2 className="animate-spin" /> PDF 준비 중...
+                        </span>
+                    )}
+                </div>
+
+                {/* 하단: 대본 영역 (고정 높이 혹은 비율) */}
+                <div className="h-1/3 min-h-[250px] max-h-[400px] border-t border-gray-200 bg-white flex flex-col shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                    <div className="px-6 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <span className="font-bold text-gray-800 flex items-center gap-2 text-sm">
+                            <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">{activeIndex + 1}</span>
+                            페이지 추천 대본
+                        </span>
+                        {/* 페이지 이동 버튼 (편의성) */}
+                        <div className="flex gap-1">
+                            <button
+                                disabled={activeIndex <= 0}
+                                onClick={() => setActiveIndex(prev => Math.max(0, prev - 1))}
+                                className="p-1 hover:bg-gray-200 rounded disabled:opacity-30 transition"
+                            >
+                                <ChevronRight className="rotate-180" size={16} />
+                            </button>
+                            <button
+                                disabled={activeIndex >= numPages - 1}
+                                onClick={() => setActiveIndex(prev => Math.min(numPages - 1, prev + 1))}
+                                className="p-1 hover:bg-gray-200 rounded disabled:opacity-30 transition"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* 하단 버튼 */}
-            <div className="py-4 text-center">
-                <button onClick={onReset} className="inline-flex items-center gap-2 text-gray-500 hover:text-red-500 transition text-sm font-medium underline decoration-gray-300 underline-offset-4">
-                    <RefreshCcw size={14} /> 다른 파일 업로드하기
-                </button>
+                    <div className="flex-1 p-6 overflow-y-auto custom-scrollbar bg-white">
+                        {currentScript ? (
+                            <p className="text-gray-800 whitespace-pre-wrap leading-8 text-lg font-medium tracking-wide">
+                                {currentScript}
+                            </p>
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
+                                <FileText size={40} className="opacity-20" />
+                                <p>이 페이지에는 추출된 대본이 없습니다.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

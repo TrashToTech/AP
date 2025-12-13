@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import FileSelectSection from "./FileSelectSection";
 import FileDropSection from "./FileDropSection";
 import useFileUpload from "./hook/UseFileUpload";
+import { useEffect } from "react";
 
 
 // ScriptView 동적 import (SSR 방지)
@@ -13,18 +14,26 @@ const ScriptView = dynamic(() => import("./ScriptView"), {
     loading: () => <div className="flex justify-center items-center h-[600px]"><Loader2 className="animate-spin text-blue-500" size={40} /></div>,
 });
 
-export default function FileUpload({ onHistoryAdd }: { onHistoryAdd: (name: string) => void }) {
+interface FileUploadProps {
+    onHistoryAdd: (name: string) => void;
+    setSidebarOpen: (open: boolean) => void;
+}
+
+export default function FileUpload({ onHistoryAdd, setSidebarOpen }: FileUploadProps) {
     const {
         status, result, storedFileName, selectedFile, errorMsg,
         handleFileSet, submitUpload, reset
-    } = useFileUpload(onHistoryAdd);
+    } = useFileUpload(onHistoryAdd, () => {// 성공했을 때 실행될 함수
+        console.log("Upload & Gen Done! Closing Sidebar..."); // 디버깅용 로그
+        setSidebarOpen(false);
+    });
 
     if (status === "done" && result && storedFileName) {
         return <ScriptView result={result} storedFileName={storedFileName} onReset={reset} />;
     }
 
     return (
-        <main className="flex-1 overflow-auto flex flex-col items-center pt-20 pb-10 px-4 bg-white">
+        <main className="flex-1 overflow-auto flex flex-col items-center pt-10 pb-10 px-4 bg-white">
             <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold leading-tight text-black">
                     방대한 정보에서 맞춤형 대본을 전달드립니다.<br />

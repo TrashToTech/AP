@@ -3,6 +3,7 @@ package com.ll.backend.global.web.client.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ll.backend.domain.ai.dto.ScriptDto;
 import com.ll.backend.domain.ai.dto.SpeechDto;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -55,12 +56,20 @@ public class ApiService {
                 });
     }
 
-    public Mono<SpeechDto> postSpeech(ScriptDto dto) {
-
+    public Mono<SpeechDto> postSpeech(ScriptDto scriptDto) {
         return webClient.post()
                 .uri("/speech")
-                .bodyValue(dto)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(scriptDto)
                 .retrieve()
-                .bodyToMono(SpeechDto.class);
+                // 🔥 String으로 받지 말고, 바로 SpeechDto로 받자!
+                // 위에서 @JsonProperty("audio")를 붙였기 때문에 찰떡같이 변환됨.
+                .bodyToMono(SpeechDto.class)
+                .doOnNext(dto -> {
+                    System.out.println("===== FastAPI 응답 수신 성공 =====");
+                    System.out.println("PDF ID: " + dto.pdfId());
+                    System.out.println("오디오 개수: " + (dto.audio() != null ? dto.audio().size() : 0));
+                })
+                .doOnError(e -> System.out.println("❌ FastAPI 통신 에러: " + e.getMessage()));
     }
 }

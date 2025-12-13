@@ -11,7 +11,6 @@ import type {
   ApiResponseMember,
   ApiResponseObject,
   ApiResponseScriptDto,
-  ApiResponseSpeechDto,
   ApiResponseVoid,
   JoinRequest,
   LoginRequest,
@@ -226,7 +225,7 @@ export const login = async (loginRequest: LoginRequest, options?: RequestInit): 
  * @summary PDF 페이지 대본을 기반으로 음성 합성 요청
  */
 export type speechResponse200 = {
-  data: ApiResponseSpeechDto
+  data: ApiResponseScriptDto
   status: 200
 }
     

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -67,9 +68,29 @@ public class AIController {
                 """
     )
     @PostMapping("/speech")
-    public Mono<ApiResponse<SpeechDto>> speech(@RequestBody ScriptDto scriptDto) {
+    public ApiResponse<SpeechDto> speech(@RequestBody ScriptDto scriptDto) {
+
+        System.out.println("음성 생성");
         // fastAPI 수정되면 저장 service 추가
         return apiService.postSpeech(scriptDto)
-                .map(ApiResponse::success);
+                .doOnSubscribe(s -> System.out.println("FastAPI 요청 시작"))
+                .flatMap(dto -> {
+                    // 1. 유효성 검사
+                    if (dto == null || dto.audio() == null || dto.audio().isEmpty()) {
+                        return Mono.error(new IllegalStateException("대본 생성 실패"));
+                    }
+
+                    System.out.println("FastAPI 응답 수신, DB 저장 시작");
+
+                    // 2. 🔥 여기가 수정된 핵심 부분!
+                    // void 메서드를 Mono.fromRunnable()로 감싸야 체이닝이 가능함
+                    return Mono.fromRunnable(() -> scriptService.saveAudioResults(dto))
+                            .subscribeOn(Schedulers.boundedElastic()) // (선택) DB 저장이 블로킹 작업이면 별도 스레드에서 실행
+                            .thenReturn(dto); // 저장이 끝나면(then) 원래 dto를 반환(Return)
+                })
+                .map(ApiResponse::success)
+                .doOnSuccess(res -> System.out.println("FastAPI 응답 수신 완료"))
+                .doOnError(err -> System.out.println("FastAPI 요청 실패: " + err))
+                .block();
     }
 }

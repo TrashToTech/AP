@@ -1,6 +1,7 @@
 package com.ll.backend.domain.ai.controller;
 
 import com.ll.backend.domain.ai.dto.ScriptDto;
+import com.ll.backend.domain.ai.dto.ScriptResponse;
 import com.ll.backend.domain.ai.dto.SpeechDto;
 import com.ll.backend.domain.ai.service.ScriptService;
 import com.ll.backend.global.dto.ApiResponse;
@@ -8,12 +9,11 @@ import com.ll.backend.global.web.client.service.ApiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -54,6 +54,12 @@ public class AIController {
                 .doOnSuccess(res -> System.out.println("FastAPI 응답 수신 완료"))
                 .doOnError(err -> System.out.println("FastAPI 요청 실패: " + err))
                 .block();
+    }
+
+    @GetMapping("/getScript")
+    public ApiResponse<List<ScriptResponse>> getScript(@RequestParam("id") long pdfId) {
+
+        return ApiResponse.success(scriptService.findByPdfId(pdfId));
     }
 
     @Operation(

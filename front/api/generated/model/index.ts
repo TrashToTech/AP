@@ -8,14 +8,18 @@
 
 export * from './apiResponseFileDto';
 export * from './apiResponseListFileDto';
+export * from './apiResponseListScriptResponse';
 export * from './apiResponseMember';
 export * from './apiResponseObject';
 export * from './apiResponseObjectData';
 export * from './apiResponseScriptDto';
+export * from './apiResponseSpeechDto';
 export * from './apiResponseVoid';
 export * from './apiResponseVoidData';
+export * from './audio';
 export * from './fileDocument';
 export * from './fileDto';
+export * from './getScriptParams';
 export * from './joinRequest';
 export * from './loginRequest';
 export * from './member';
@@ -24,4 +28,6 @@ export * from './removeParams';
 export * from './script';
 export * from './scriptDto';
 export * from './scriptRequest';
+export * from './scriptResponse';
+export * from './speechDto';
 export * from './uploadBody';

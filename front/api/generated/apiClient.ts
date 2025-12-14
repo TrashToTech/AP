@@ -8,10 +8,13 @@
 import type {
   ApiResponseFileDto,
   ApiResponseListFileDto,
+  ApiResponseListScriptResponse,
   ApiResponseMember,
   ApiResponseObject,
   ApiResponseScriptDto,
+  ApiResponseSpeechDto,
   ApiResponseVoid,
+  GetScriptParams,
   JoinRequest,
   LoginRequest,
   RemoveParams,
@@ -225,7 +228,7 @@ export const login = async (loginRequest: LoginRequest, options?: RequestInit): 
  * @summary PDF 페이지 대본을 기반으로 음성 합성 요청
  */
 export type speechResponse200 = {
-  data: ApiResponseScriptDto
+  data: ApiResponseSpeechDto
   status: 200
 }
     
@@ -323,6 +326,46 @@ export const getListUrl = () => {
 export const list = async ( options?: RequestInit): Promise<listResponse> => {
   
   return fetchWrapper<listResponse>(getListUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+export type getScriptResponse200 = {
+  data: ApiResponseListScriptResponse
+  status: 200
+}
+    
+export type getScriptResponseSuccess = (getScriptResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getScriptResponse = (getScriptResponseSuccess)
+
+export const getGetScriptUrl = (params: GetScriptParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/ai/getScript?${stringifiedParams}` : `/api/ai/getScript`
+}
+
+export const getScript = async (params: GetScriptParams, options?: RequestInit): Promise<getScriptResponse> => {
+  
+  return fetchWrapper<getScriptResponse>(getGetScriptUrl(params),
   {      
     ...options,
     method: 'GET'

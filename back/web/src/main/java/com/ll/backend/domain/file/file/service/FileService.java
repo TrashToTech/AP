@@ -108,4 +108,9 @@ public class FileService {
     public void remove(long pdfId, Long memberId) {
         fileDocumentRepository.deleteByIdAndMemberId(pdfId, memberId);
     }
+
+    public FileDocument findById(long pdfId) {
+        return fileDocumentRepository.findById(pdfId)
+                .orElseThrow();
+    }
 }

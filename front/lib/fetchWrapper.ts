@@ -17,7 +17,7 @@ export const fetchWrapper = async (url: string, options: RequestInit = {}) => {
 
     let res = await makeRequest();
 
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
         const refreshRes = await fetch("/api/auth/reIssue", {
             method: "POST",
             credentials: "include",

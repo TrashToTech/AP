@@ -6,8 +6,10 @@ import {
     scriptResponse,
     upload,
     uploadResponse,
-    speech,          // 추가됨
-    speechResponse,  // 추가됨
+    speech,
+    speechResponse,
+    getScript,
+    getScriptResponse
 } from "@/api/generated/apiClient";
 import { useState } from "react";
 
@@ -15,7 +17,6 @@ export default function useFileUpload(
     onHistoryAdd: (name: string) => void,
     onSuccess?: () => void
 ) {
-    // 상태는 그대로 유지 (generating 상태에서 script -> speech 둘 다 처리)
     const [status, setStatus] = useState<"idle" | "uploading" | "generating" | "done" | "error">("idle");
     const [result, setResult] = useState<any>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -33,6 +34,42 @@ export default function useFileUpload(
         setSelectedFile(file);
     };
 
+    const loadFromHistory = async (pdfId: number, name: string) => {
+        if (!pdfId) {
+            setErrorMsg("잘못된 파일 ID입니다.");
+            return;
+        }
+
+        try {
+            reset(); // 상태 초기화
+            setStatus("generating"); // 로딩 스피너 표시
+            setStoredFileName(name); // 파일명 세팅
+
+            const res: getScriptResponse = await getScript({ id: pdfId });
+
+            if (res.status !== 200 || !res.data?.success) {
+                throw new Error("저장된 대본을 불러오는데 실패했습니다.");
+            }
+
+            const scriptList = res.data.data;
+            const formattedResult = {
+                pdfInfo: scriptList
+            };
+
+            setResult(formattedResult);
+            setStatus("done");
+
+            if (onSuccess) {
+                onSuccess();
+            }
+
+        } catch (err: any) {
+            console.error(err);
+            setStatus("error");
+            setErrorMsg(err.message || "기록을 불러오는 중 오류가 발생했습니다.");
+        }
+    };
+
     const submitUpload = async () => {
         if (!selectedFile) {
             setErrorMsg("PDF 파일을 선택해 주세요.");
@@ -44,7 +81,7 @@ export default function useFileUpload(
             setResult(null);
             setErrorMsg(null);
 
-            // 1. 파일 업로드
+            // 1. 업로드
             const uploadRes: uploadResponse = await upload({ file: selectedFile });
             if (uploadRes.status !== 200 || !uploadRes.data?.success) throw new Error("파일 업로드 실패");
 
@@ -53,25 +90,23 @@ export default function useFileUpload(
 
             onHistoryAdd(uploaded.originalName ?? selectedFile.name);
 
-            setStatus("generating"); // 대본 생성 & 음성 합성 시작
+            setStatus("generating");
 
-            // 2. 대본 생성 (Script)
+            // 2. 대본 생성
             const scriptRes: scriptResponse = await script({
                 pdfId: uploaded.pdfId,
                 pdfName: uploaded.storedName,
             });
 
-            // 생성 실패 시 파일 삭제 로직
             if (scriptRes.status !== 200 || !scriptRes.data?.success || !scriptRes.data.data) {
                 console.warn(`스크립트 생성 실패. 파일(ID: ${uploaded.pdfId}) 삭제 시도.`);
                 await tryRemoveFile(uploaded.pdfId);
                 throw new Error("스크립트 생성에 실패했습니다.");
             }
 
-            const generatedScriptData = scriptRes.data.data; // ScriptDto 형식
+            const generatedScriptData = scriptRes.data.data;
 
-            // 3. 음성 합성 (Speech) - 새로 추가된 부분!
-            // script 결과(generatedScriptData)를 그대로 speech 요청 바디로 사용
+            // 3. 음성 합성
             const speechRes: speechResponse = await speech(generatedScriptData);
 
             if (speechRes.status !== 200 || !speechRes.data?.success) {
@@ -80,8 +115,6 @@ export default function useFileUpload(
                 throw new Error("음성 합성에 실패했습니다.");
             }
 
-            // 4. 완료 처리
-            // 최종적으로 음성 파일 정보가 포함된 데이터를 결과로 설정
             setStoredFileName(uploaded.storedName);
             setResult(speechRes.data.data);
             setStatus("done");
@@ -97,7 +130,6 @@ export default function useFileUpload(
         }
     };
 
-    // 에러 발생 시 파일 삭제를 위한 헬퍼 함수
     const tryRemoveFile = async (pdfId: number) => {
         try {
             await remove({ id: pdfId });
@@ -122,6 +154,7 @@ export default function useFileUpload(
         errorMsg,
         handleFileSet,
         submitUpload,
+        loadFromHistory,
         reset
     };
 }

@@ -30,7 +30,7 @@ export default function DropdownMenu({ label, items }: { label: string, items: s
                         <li
                             key={item}
                             className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                            onClick={() => { setOpen(false); /* 선택 동작 추가 */ }}
+                            onClick={() => { setOpen(false); }}
                         >
                             {item}
                         </li>

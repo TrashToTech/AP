@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ScriptRepository extends JpaRepository<Script, Long> {
     List<Script> findAllByFileDocumentId(long fileDocumentId);
+
+    List<Script> findByFileDocumentId(long pdfId);
 }

@@ -96,7 +96,7 @@ export default function ScriptView({ result, storedFileName, onReset }: ScriptVi
             {/* 2. 우측: 메인 뷰어 + 대본 영역 */}
             <div className="flex-1 flex flex-col min-w-0 h-full bg-white">
 
-                {/* 상단 헤더 (간소화) */}
+                {/* 상단 헤더 */}
                 <div className="h-14 border-b border-gray-200 flex items-center justify-between px-6 bg-white shrink-0">
                     <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                         <Sparkles className="text-yellow-500 fill-yellow-500" size={20} />
@@ -112,9 +112,9 @@ export default function ScriptView({ result, storedFileName, onReset }: ScriptVi
                     </button>
                 </div>
 
-                {/* 중앙: PDF 뷰어 영역 (가장 넓게) */}
+                {/* 중앙: PDF 뷰어 영역 */}
                 <div className="flex-1 bg-gray-100/80 overflow-hidden relative flex items-center justify-center p-4">
-                    {/* 배경 패턴 (선택사항) */}
+                    {/* 배경 패턴 */}
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
                         style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
                     </div>
@@ -140,14 +140,14 @@ export default function ScriptView({ result, storedFileName, onReset }: ScriptVi
                     )}
                 </div>
 
-                {/* 하단: 대본 영역 (고정 높이 혹은 비율) */}
+                {/* 하단: 대본 영역 */}
                 <div className="h-1/3 min-h-[250px] max-h-[400px] border-t border-gray-200 bg-white flex flex-col shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
                     <div className="px-6 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                         <span className="font-bold text-gray-800 flex items-center gap-2 text-sm">
                             <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs">{activeIndex + 1}</span>
                             페이지 추천 대본
                         </span>
-                        {/* 페이지 이동 버튼 (편의성) */}
+                        {/* 페이지 이동 버튼 */}
                         <div className="flex gap-1">
                             <button
                                 disabled={activeIndex <= 0}

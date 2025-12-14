@@ -2,6 +2,7 @@ package com.ll.backend.domain.ai.service;
 
 import com.ll.backend.domain.ai.dto.Audio;
 import com.ll.backend.domain.ai.dto.ScriptDto;
+import com.ll.backend.domain.ai.dto.ScriptResponse;
 import com.ll.backend.domain.ai.dto.SpeechDto;
 import com.ll.backend.domain.ai.entity.Script;
 import com.ll.backend.domain.ai.repository.ScriptRepository;
@@ -78,5 +79,12 @@ public class ScriptService {
 
         // 4. 별도의 repository.saveAll()을 호출하지 않아도,
         // @Transactional이 끝날 때 변경된 감지(Dirty Checking)가 동작하여 Update 쿼리가 날아갑니다.
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScriptResponse> findByPdfId(long pdfId) {
+        return scriptRepository.findAllByFileDocumentId(pdfId).stream()
+                .map(ScriptResponse::new)
+                .collect(Collectors.toList());
     }
 }
